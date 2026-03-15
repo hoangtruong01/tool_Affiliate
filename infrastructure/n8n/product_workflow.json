@@ -1,0 +1,86 @@
+{
+  "name": "AI Product Analyzer & Video Notifier",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "http://api:8000/api/v1/products/analyze",
+        "method": "POST",
+        "authentication": "none",
+        "parameters": {
+          "parameter": [
+            {
+              "name": "product_url",
+              "value": "={{$node[\"Cron\"].json[\"url\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Trigger Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [50, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=Video job {{$node[\"Webhook\"].json[\"job_id\"]}} is ready! Check it here: http://localhost:3000/jobs"
+      },
+      "name": "Telegram Notify",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [450, 500]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-ready-webhook",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 500],
+      "webhookId": "vd-ready"
+    }
+  ],
+  "connections": {
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "Trigger Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Telegram Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
