@@ -11,6 +11,7 @@ from app.api.v1.assets import router as assets_router
 from app.api.v1.jobs import router as jobs_router
 from app.api.v1.analytics import router as analytics_router
 from app.api.v1.admin import router as admin_router
+from app.api.v1.integrations import router as integrations_router
 
 api_v1_router = APIRouter()
 
@@ -22,3 +23,5 @@ api_v1_router.include_router(assets_router, prefix="/assets", tags=["Assets"])
 api_v1_router.include_router(jobs_router, prefix="/jobs", tags=["Video Jobs"])
 api_v1_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 api_v1_router.include_router(admin_router, prefix="/admin", tags=["Admin"])
+api_v1_router.include_router(integrations_router, prefix="/integrations", tags=["Integrations"])
+

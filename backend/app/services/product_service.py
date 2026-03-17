@@ -29,8 +29,8 @@ async def create_product(
     )
     db.add(product)
     await db.flush()
-    await db.refresh(product)
-    return product
+    # Return with selling_angles loaded for serialization
+    return await get_product(db, product.id)
 
 
 async def get_product(db: AsyncSession, product_id: uuid.UUID) -> Optional[Product]:
@@ -127,5 +127,5 @@ async def save_analysis_results(
         db.add(angle)
 
     await db.flush()
-    await db.refresh(product)
-    return product
+    # Return with selling_angles loaded for serialization
+    return await get_product(db, product_id)

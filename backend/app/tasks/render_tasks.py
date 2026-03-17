@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 def run_async(coro):
     """Bridge between sync Celery and async services."""
-    loop = asyncio.get_event_loop()
-    if loop.is_running():
-        return asyncio.ensure_future(coro)
-    return loop.run_until_complete(coro)
+    from app.database import engine
+    # Dispose pool to avoid "attached to a different loop" error between tasks
+    engine.pool.dispose()
+    return asyncio.run(coro)
 
 @celery_app.task(name="app.tasks.render_tasks.render_video_task", bind=True, max_retries=2)
 def render_video_task(self, job_id: str):
@@ -36,6 +36,7 @@ def render_video_task(self, job_id: str):
             await db.commit()
 
             try:
+                logger.info(f"Starting render for job {job_id}")
                 # Prepare assets
                 assets = []
                 # job_assets is a list of VideoJobAsset models
@@ -53,6 +54,8 @@ def render_video_task(self, job_id: str):
                         image_paths.append(asset.file_path)
                     elif asset.asset_type == "audio":
                         audio_path = asset.file_path
+
+                logger.info(f"Found {len(image_paths)} images and audio={bool(audio_path)}")
 
                 # Prepare output path
                 output_filename = f"render_{job.id.hex}.mp4"
@@ -77,11 +80,13 @@ def render_video_task(self, job_id: str):
                 )
 
                 # Execute FFmpeg
+                logger.info(f"Executing FFmpeg command for job {job_id}")
                 success, message = run_ffmpeg(cmd)
+                logger.info(f"FFmpeg finished for job {job_id}: success={success}")
 
                 if success:
                     await render_service.update_job_status(
-                        db, job.id, "rendered", 
+                        db, job.id, "needs_review", 
                         output_path=output_path,
                         duration_seconds=config.duration
                     )
@@ -92,6 +97,7 @@ def render_video_task(self, job_id: str):
                     )
                 
                 await db.commit()
+                logger.info(f"Committed final status for job {job_id}")
 
             except Exception as e:
                 logger.exception(f"Render failed for job {job_id}")

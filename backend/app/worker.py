@@ -24,8 +24,11 @@ celery_app.conf.update(
     worker_prefetch_multiplier=1, # Process one task at a time for better resource management
 )
 
-# Auto-discover tasks from app/tasks directory
-celery_app.autodiscover_tasks(["app.tasks"])
+# Explicitly include task modules so Celery registers them at startup
+celery_app.conf.include = [
+    "app.tasks.ai_tasks",
+    "app.tasks.render_tasks",
+]
 
 # Define task queues to isolate CPU-intensive renders from I/O-bound AI calls
 celery_app.conf.task_routes = {

@@ -41,7 +41,7 @@ export default function ApprovalsPage() {
       // Here we'll fetch scripts and jobs with 'pending_approval' status
       const [scriptsRes, jobsRes] = await Promise.all([
         api.get("/scripts", { params: { status: "pending_approval" } }),
-        api.get("/jobs", { params: { status: "pending_approval" } }),
+        api.get("/jobs", { params: { status: "needs_review" } }),
       ]);
 
       const scriptItems: ApprovalItem[] = scriptsRes.data.items.map(

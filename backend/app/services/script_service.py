@@ -49,7 +49,10 @@ async def get_script(db: AsyncSession, script_id: uuid.UUID) -> Optional[Script]
     """Get a script by ID with captions."""
     result = await db.execute(
         select(Script)
-        .options(selectinload(Script.captions))
+        .options(
+            selectinload(Script.captions),
+            selectinload(Script.product)
+        )
         .where(Script.id == script_id)
     )
     return result.scalar_one_or_none()

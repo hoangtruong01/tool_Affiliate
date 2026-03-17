@@ -105,7 +105,8 @@ export default function JobsPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "rendered":
+      case "needs_review":
+      case "approved":
         return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
       case "failed":
         return <AlertCircle className="w-5 h-5 text-red-500" />;
@@ -192,7 +193,7 @@ export default function JobsPage() {
                         <span
                           className={cn(
                             "text-xs font-bold capitalize",
-                            job.status === "rendered"
+                            job.status === "needs_review" || job.status === "approved"
                               ? "text-emerald-500"
                               : job.status === "failed"
                                 ? "text-red-500"
@@ -213,7 +214,7 @@ export default function JobsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        {job.status === "rendered" && (
+                        {(job.status === "needs_review" || job.status === "approved") && (
                           <button className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20">
                             <Download className="w-4 h-4" />
                           </button>

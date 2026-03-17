@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 def run_async(coro):
     """Bridge between sync Celery and async services."""
-    loop = asyncio.get_event_loop()
-    if loop.is_running():
-        return asyncio.ensure_future(coro)
-    return loop.run_until_complete(coro)
+    from app.database import engine
+    # Dispose pool to avoid "attached to a different loop" error between tasks
+    engine.pool.dispose()
+    return asyncio.run(coro)
 
 @celery_app.task(name="app.tasks.ai_tasks.analyze_product_task", bind=True, max_retries=3)
 def analyze_product_task(self, product_id: str):

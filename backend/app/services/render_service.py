@@ -53,7 +53,10 @@ async def get_video_job(db: AsyncSession, job_id: uuid.UUID) -> Optional[VideoJo
     """Get a video job by ID with assets."""
     result = await db.execute(
         select(VideoJob)
-        .options(selectinload(VideoJob.job_assets))
+        .options(
+            selectinload(VideoJob.job_assets),
+            selectinload(VideoJob.script)
+        )
         .where(VideoJob.id == job_id)
     )
     return result.scalar_one_or_none()
@@ -99,7 +102,7 @@ async def update_job_status(
 
     if status == "processing":
         job.started_at = datetime.now(timezone.utc)
-    elif status in ("rendered", "failed"):
+    elif status in ("rendered", "needs_review", "failed"):
         job.completed_at = datetime.now(timezone.utc)
 
     if output_path:

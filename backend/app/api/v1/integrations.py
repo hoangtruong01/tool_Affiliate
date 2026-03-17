@@ -4,7 +4,7 @@ import uuid
 
 from app.api import deps
 from app.services.platform_service import platform_service
-from app.services.render_service import render_service
+from app.services.render_service import get_video_job
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,12 +14,12 @@ router = APIRouter()
 async def publish_tiktok(
     job_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(deps.get_current_active_user)
+    current_user = Depends(deps.get_current_user)
 ):
     """
     Publish a rendered video to TikTok.
     """
-    job = await render_service.get_video_job(db, job_id)
+    job = await get_video_job(db, job_id)
     if not job or job.status != 'rendered':
         raise HTTPException(status_code=400, detail="Video job not ready or not found")
     
@@ -38,18 +38,19 @@ async def publish_tiktok(
 async def publish_shopee(
     job_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(deps.get_current_active_user)
+    current_user = Depends(deps.get_current_user)
 ):
     """
     Publish a rendered video to Shopee.
     """
-    job = await render_service.get_video_job(db, job_id)
+    job = await get_video_job(db, job_id)
     if not job or job.status != 'rendered':
         raise HTTPException(status_code=400, detail="Video job not ready or not found")
     
     result = await platform_service.publish_to_shopee(
         video_path=job.output_path,
-        product_id=str(job.product_id),
+        product_id=str(job.script.product_id),
         caption="Review sản phẩm cực xịn!"
     )
     return result
+

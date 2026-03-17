@@ -108,8 +108,8 @@ async def approve_job_endpoint(
     job = await get_video_job(db, job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    if job.status != "rendered":
-        raise HTTPException(status_code=400, detail="Only rendered jobs can be reviewed")
+    if job.status != "needs_review":
+        raise HTTPException(status_code=400, detail="Only jobs pending review can be reviewed")
 
     approval = await create_approval(
         db, "video_job", job_id, current_user.id, data.decision, data.comment
