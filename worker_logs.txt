@@ -1,0 +1,300 @@
+worker-1  | [2026-03-17 14:37:38,127: INFO/MainProcess] Connected to redis://redis:6379/1
+worker-1  | [2026-03-17 14:37:38,128: WARNING/MainProcess] /usr/local/lib/python3.12/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+worker-1  | whether broker connection retries are made during startup in Celery 6.0 and above.
+worker-1  | If you wish to retain the existing behavior for retrying connections on startup,
+worker-1  | you should set broker_connection_retry_on_startup to True.
+worker-1  |   warnings.warn(
+worker-1  | 
+worker-1  | [2026-03-17 14:37:38,130: INFO/MainProcess] mingle: searching for neighbors
+worker-1  | [2026-03-17 14:37:39,137: INFO/MainProcess] mingle: all alone
+worker-1  | [2026-03-17 14:37:39,156: INFO/MainProcess] celery@d8197f7909f8 ready.
+worker-1  | [2026-03-17 15:09:35,580: INFO/MainProcess] Task app.tasks.ai_tasks.analyze_product_task[6a7f61ab-dc2f-41b1-b889-92f1a75b5f8b] received
+worker-1  | [2026-03-17 15:09:35,634: INFO/ForkPoolWorker-2] select pg_catalog.version()
+worker-1  | 2026-03-17 15:09:35,634 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+worker-1  | [2026-03-17 15:09:35,634: INFO/ForkPoolWorker-2] [raw sql] ()
+worker-1  | 2026-03-17 15:09:35,634 INFO sqlalchemy.engine.Engine [raw sql] ()
+worker-1  | 2026-03-17 15:09:35,636 INFO sqlalchemy.engine.Engine select current_schema()
+worker-1  | 2026-03-17 15:09:35,636 INFO sqlalchemy.engine.Engine [raw sql] ()
+worker-1  | [2026-03-17 15:09:35,636: INFO/ForkPoolWorker-2] select current_schema()
+worker-1  | [2026-03-17 15:09:35,636: INFO/ForkPoolWorker-2] [raw sql] ()
+worker-1  | [2026-03-17 15:09:35,637: INFO/ForkPoolWorker-2] show standard_conforming_strings
+worker-1  | [2026-03-17 15:09:35,637: INFO/ForkPoolWorker-2] [raw sql] ()
+worker-1  | 2026-03-17 15:09:35,637 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+worker-1  | 2026-03-17 15:09:35,637 INFO sqlalchemy.engine.Engine [raw sql] ()
+worker-1  | [2026-03-17 15:09:35,638: INFO/ForkPoolWorker-2] BEGIN (implicit)
+worker-1  | 2026-03-17 15:09:35,638 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:35,642: INFO/ForkPoolWorker-2] SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | [2026-03-17 15:09:35,642: INFO/ForkPoolWorker-2] [generated in 0.00019s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:35,642 INFO sqlalchemy.engine.Engine SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | 2026-03-17 15:09:35,642 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,662: INFO/ForkPoolWorker-2] SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:35,662: INFO/ForkPoolWorker-2] [generated in 0.00031s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:35,662 INFO sqlalchemy.engine.Engine SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:35,662 INFO sqlalchemy.engine.Engine [generated in 0.00031s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,716: INFO/ForkPoolWorker-2] Using mocked OpenAI response for test environment.
+worker-1  | 2026-03-17 15:09:35,717 INFO sqlalchemy.engine.Engine SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | [2026-03-17 15:09:35,717: INFO/ForkPoolWorker-2] SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | 2026-03-17 15:09:35,717 INFO sqlalchemy.engine.Engine [cached since 0.07572s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,717: INFO/ForkPoolWorker-2] [cached since 0.07572s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:35,719 INFO sqlalchemy.engine.Engine SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:35,719: INFO/ForkPoolWorker-2] SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:35,719: INFO/ForkPoolWorker-2] [cached since 0.05727s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:35,719 INFO sqlalchemy.engine.Engine [cached since 0.05727s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,722: INFO/ForkPoolWorker-2] UPDATE products SET ai_analysis=$1::JSONB, status=$2::product_status, updated_at=now() WHERE products.id = $3::UUID
+worker-1  | 2026-03-17 15:09:35,722 INFO sqlalchemy.engine.Engine UPDATE products SET ai_analysis=$1::JSONB, status=$2::product_status, updated_at=now() WHERE products.id = $3::UUID
+worker-1  | [2026-03-17 15:09:35,722: INFO/ForkPoolWorker-2] [generated in 0.00024s] ('{"summary": "This is a great dummy product.", "target_audience": "Tech enthusiasts and developers", "selling_angles": [{"type": "benefit", "title": "Boost Productivity", "description": "It helps you work faster.", "score": 0.95}]}', 'analyzed', UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'))
+worker-1  | 2026-03-17 15:09:35,722 INFO sqlalchemy.engine.Engine [generated in 0.00024s] ('{"summary": "This is a great dummy product.", "target_audience": "Tech enthusiasts and developers", "selling_angles": [{"type": "benefit", "title": "Boost Productivity", "description": "It helps you work faster.", "score": 0.95}]}', 'analyzed', UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'))
+worker-1  | [2026-03-17 15:09:35,725: INFO/ForkPoolWorker-2] INSERT INTO selling_angles (id, product_id, angle_type, title, description, score) VALUES ($1::UUID, $2::UUID, $3::angle_type, $4::VARCHAR, $5::VARCHAR, $6::FLOAT) RETURNING selling_angles.created_at
+worker-1  | 2026-03-17 15:09:35,725 INFO sqlalchemy.engine.Engine INSERT INTO selling_angles (id, product_id, angle_type, title, description, score) VALUES ($1::UUID, $2::UUID, $3::angle_type, $4::VARCHAR, $5::VARCHAR, $6::FLOAT) RETURNING selling_angles.created_at
+worker-1  | 2026-03-17 15:09:35,725 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'), UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'), 'benefit', 'Boost Productivity', 'It helps you work faster.', 0.95)
+worker-1  | [2026-03-17 15:09:35,725: INFO/ForkPoolWorker-2] [generated in 0.00019s] (UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'), UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'), 'benefit', 'Boost Productivity', 'It helps you work faster.', 0.95)
+worker-1  | 2026-03-17 15:09:35,727 INFO sqlalchemy.engine.Engine SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | 2026-03-17 15:09:35,727 INFO sqlalchemy.engine.Engine [cached since 0.085s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,727: INFO/ForkPoolWorker-2] SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | [2026-03-17 15:09:35,727: INFO/ForkPoolWorker-2] [cached since 0.085s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,727: INFO/ForkPoolWorker-2] SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:35,727 INFO sqlalchemy.engine.Engine SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:35,727 INFO sqlalchemy.engine.Engine [cached since 0.06545s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:35,727: INFO/ForkPoolWorker-2] [cached since 0.06545s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:35,728 INFO sqlalchemy.engine.Engine COMMIT
+worker-1  | [2026-03-17 15:09:35,728: INFO/ForkPoolWorker-2] COMMIT
+worker-1  | [2026-03-17 15:09:35,732: INFO/ForkPoolWorker-2] Analysis completed for product 2dac1c4f-b545-4ae3-8222-dfa13146fda3
+worker-1  | [2026-03-17 15:09:35,735: INFO/ForkPoolWorker-2] Task app.tasks.ai_tasks.analyze_product_task[6a7f61ab-dc2f-41b1-b889-92f1a75b5f8b] succeeded in 0.15400943900021957s: None
+worker-1  | [2026-03-17 15:09:38,599: INFO/MainProcess] Task app.tasks.ai_tasks.generate_script_task[4082029b-de99-468e-90ed-9ea6cf04559e] received
+worker-1  | [2026-03-17 15:09:38,600: ERROR/ForkPoolWorker-2] Exception closing connection <AdaptedConnection <asyncpg.connection.Connection object at 0x7eb841b55310>>
+worker-1  | Traceback (most recent call last):
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/pool/base.py", line 376, in _close_connection
+worker-1  |     self._dialect.do_close(connection)
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 708, in do_close
+worker-1  |     dbapi_connection.close()
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 886, in close
+worker-1  |     self.await_(self._connection.close())
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+worker-1  |     raise exc.MissingGreenlet(
+worker-1  | sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+worker-1  | 2026-03-17 15:09:38,625 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:38,625: INFO/ForkPoolWorker-2] BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:38,625: INFO/ForkPoolWorker-2] SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | 2026-03-17 15:09:38,625 INFO sqlalchemy.engine.Engine SELECT products.id, products.created_by, products.name, products.source_url, products.description, products.raw_scraped_data, products.ai_analysis, products.category, products.status, products.created_at, products.updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | 2026-03-17 15:09:38,625 INFO sqlalchemy.engine.Engine [cached since 2.984s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | WHERE products.id = $1::UUID
+worker-1  | [2026-03-17 15:09:38,625: INFO/ForkPoolWorker-2] [cached since 2.984s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | 2026-03-17 15:09:38,644 INFO sqlalchemy.engine.Engine SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:38,644 INFO sqlalchemy.engine.Engine [cached since 2.983s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:38,644: INFO/ForkPoolWorker-2] SELECT selling_angles.product_id AS selling_angles_product_id, selling_angles.id AS selling_angles_id, selling_angles.angle_type AS selling_angles_angle_type, selling_angles.title AS selling_angles_title, selling_angles.description AS selling_angles_description, selling_angles.score AS selling_angles_score, selling_angles.created_at AS selling_angles_created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.product_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:38,644: INFO/ForkPoolWorker-2] [cached since 2.983s ago] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:38,651: INFO/ForkPoolWorker-2] SELECT selling_angles.id, selling_angles.product_id, selling_angles.angle_type, selling_angles.title, selling_angles.description, selling_angles.score, selling_angles.created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.id = $1::UUID
+worker-1  | [2026-03-17 15:09:38,651: INFO/ForkPoolWorker-2] [generated in 0.00016s] (UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'),)
+worker-1  | 2026-03-17 15:09:38,651 INFO sqlalchemy.engine.Engine SELECT selling_angles.id, selling_angles.product_id, selling_angles.angle_type, selling_angles.title, selling_angles.description, selling_angles.score, selling_angles.created_at 
+worker-1  | FROM selling_angles 
+worker-1  | WHERE selling_angles.id = $1::UUID
+worker-1  | 2026-03-17 15:09:38,651 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'),)
+worker-1  | [2026-03-17 15:09:38,657: INFO/ForkPoolWorker-2] Using mocked OpenAI response for test environment.
+worker-1  | 2026-03-17 15:09:38,658 INFO sqlalchemy.engine.Engine INSERT INTO scripts (id, product_id, angle_id, created_by, hook, body, cta, tone, platform, duration_seconds, status) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::tone_type, $9::platform_type, $10::INTEGER, $11::script_status) RETURNING scripts.created_at, scripts.updated_at
+worker-1  | 2026-03-17 15:09:38,658 INFO sqlalchemy.engine.Engine [generated in 0.00015s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'), UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'), UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'), UUID('1b290ef4-c147-4dae-a92f-3813420513ff'), 'Stop scrolling! Here is the best tech product.', 'This amazing test product will save you hours of work everyday.', 'Click the link in bio to get yours now!', 'casual', 'tiktok', 30, 'draft')
+worker-1  | [2026-03-17 15:09:38,658: INFO/ForkPoolWorker-2] INSERT INTO scripts (id, product_id, angle_id, created_by, hook, body, cta, tone, platform, duration_seconds, status) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::tone_type, $9::platform_type, $10::INTEGER, $11::script_status) RETURNING scripts.created_at, scripts.updated_at
+worker-1  | [2026-03-17 15:09:38,658: INFO/ForkPoolWorker-2] [generated in 0.00015s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'), UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'), UUID('9269cf95-f6d7-4409-9f3b-ddbacd98c7cf'), UUID('1b290ef4-c147-4dae-a92f-3813420513ff'), 'Stop scrolling! Here is the best tech product.', 'This amazing test product will save you hours of work everyday.', 'Click the link in bio to get yours now!', 'casual', 'tiktok', 30, 'draft')
+worker-1  | 2026-03-17 15:09:38,667 INFO sqlalchemy.engine.Engine SELECT scripts.id, scripts.product_id, scripts.angle_id, scripts.created_by, scripts.hook, scripts.body, scripts.cta, scripts.tone, scripts.platform, scripts.duration_seconds, scripts.status, scripts.metadata, scripts.created_at, scripts.updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | 2026-03-17 15:09:38,667 INFO sqlalchemy.engine.Engine [generated in 0.00013s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:38,667: INFO/ForkPoolWorker-2] SELECT scripts.id, scripts.product_id, scripts.angle_id, scripts.created_by, scripts.hook, scripts.body, scripts.cta, scripts.tone, scripts.platform, scripts.duration_seconds, scripts.status, scripts.metadata, scripts.created_at, scripts.updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | [2026-03-17 15:09:38,667: INFO/ForkPoolWorker-2] [generated in 0.00013s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:38,668: INFO/ForkPoolWorker-2] COMMIT
+worker-1  | 2026-03-17 15:09:38,668 INFO sqlalchemy.engine.Engine COMMIT
+worker-1  | [2026-03-17 15:09:38,673: INFO/ForkPoolWorker-2] Task app.tasks.ai_tasks.generate_script_task[4082029b-de99-468e-90ed-9ea6cf04559e] succeeded in 0.07336274000044796s: None
+worker-1  | [2026-03-17 15:09:39,627: INFO/MainProcess] Task app.tasks.ai_tasks.generate_caption_task[854d2239-d76d-475d-99c4-da6dfd5329c6] received
+worker-1  | [2026-03-17 15:09:39,628: ERROR/ForkPoolWorker-2] Exception closing connection <AdaptedConnection <asyncpg.connection.Connection object at 0x7eb841176b70>>
+worker-1  | Traceback (most recent call last):
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/pool/base.py", line 376, in _close_connection
+worker-1  |     self._dialect.do_close(connection)
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 708, in do_close
+worker-1  |     dbapi_connection.close()
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 886, in close
+worker-1  |     self.await_(self._connection.close())
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+worker-1  |     raise exc.MissingGreenlet(
+worker-1  | sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+worker-1  | 2026-03-17 15:09:39,648 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:39,648: INFO/ForkPoolWorker-2] BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:39,650: INFO/ForkPoolWorker-2] SELECT scripts.id, scripts.product_id, scripts.angle_id, scripts.created_by, scripts.hook, scripts.body, scripts.cta, scripts.tone, scripts.platform, scripts.duration_seconds, scripts.status, scripts.metadata, scripts.created_at, scripts.updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | [2026-03-17 15:09:39,650: INFO/ForkPoolWorker-2] [generated in 0.00017s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | 2026-03-17 15:09:39,650 INFO sqlalchemy.engine.Engine SELECT scripts.id, scripts.product_id, scripts.angle_id, scripts.created_by, scripts.hook, scripts.body, scripts.cta, scripts.tone, scripts.platform, scripts.duration_seconds, scripts.status, scripts.metadata, scripts.created_at, scripts.updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | 2026-03-17 15:09:39,650 INFO sqlalchemy.engine.Engine [generated in 0.00017s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | 2026-03-17 15:09:39,668 INFO sqlalchemy.engine.Engine SELECT products.id AS products_id, products.created_by AS products_created_by, products.name AS products_name, products.source_url AS products_source_url, products.description AS products_description, products.raw_scraped_data AS products_raw_scraped_data, products.ai_analysis AS products_ai_analysis, products.category AS products_category, products.status AS products_status, products.created_at AS products_created_at, products.updated_at AS products_updated_at 
+worker-1  | FROM products 
+worker-1  | [2026-03-17 15:09:39,668: INFO/ForkPoolWorker-2] SELECT products.id AS products_id, products.created_by AS products_created_by, products.name AS products_name, products.source_url AS products_source_url, products.description AS products_description, products.raw_scraped_data AS products_raw_scraped_data, products.ai_analysis AS products_ai_analysis, products.category AS products_category, products.status AS products_status, products.created_at AS products_created_at, products.updated_at AS products_updated_at 
+worker-1  | FROM products 
+worker-1  | WHERE products.id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:39,668: INFO/ForkPoolWorker-2] [generated in 0.00020s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | WHERE products.id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:39,668 INFO sqlalchemy.engine.Engine [generated in 0.00020s] (UUID('2dac1c4f-b545-4ae3-8222-dfa13146fda3'),)
+worker-1  | [2026-03-17 15:09:39,675: INFO/ForkPoolWorker-2] SELECT captions.script_id AS captions_script_id, captions.id AS captions_id, captions.caption_text AS captions_caption_text, captions.cta_text AS captions_cta_text, captions.hashtags AS captions_hashtags, captions.platform AS captions_platform, captions.status AS captions_status, captions.created_at AS captions_created_at 
+worker-1  | FROM captions 
+worker-1  | WHERE captions.script_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:39,675: INFO/ForkPoolWorker-2] [generated in 0.00016s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | 2026-03-17 15:09:39,675 INFO sqlalchemy.engine.Engine SELECT captions.script_id AS captions_script_id, captions.id AS captions_id, captions.caption_text AS captions_caption_text, captions.cta_text AS captions_cta_text, captions.hashtags AS captions_hashtags, captions.platform AS captions_platform, captions.status AS captions_status, captions.created_at AS captions_created_at 
+worker-1  | FROM captions 
+worker-1  | WHERE captions.script_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:39,675 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:39,686: INFO/ForkPoolWorker-2] Using mocked OpenAI response for test environment.
+worker-1  | [2026-03-17 15:09:39,687: INFO/ForkPoolWorker-2] INSERT INTO captions (id, script_id, caption_text, cta_text, hashtags, platform, status) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::VARCHAR, $5::JSONB, $6::platform_type, $7::caption_status) RETURNING captions.created_at
+worker-1  | [2026-03-17 15:09:39,687: INFO/ForkPoolWorker-2] [generated in 0.00017s] (UUID('207543b8-5565-4ab5-baaf-7b6b92811c71'), UUID('321067ae-bcee-4e3f-9376-8203b633b57f'), 'Mock response for query.', 'Link in bio!', '[]', 'tiktok', 'draft')
+worker-1  | 2026-03-17 15:09:39,687 INFO sqlalchemy.engine.Engine INSERT INTO captions (id, script_id, caption_text, cta_text, hashtags, platform, status) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::VARCHAR, $5::JSONB, $6::platform_type, $7::caption_status) RETURNING captions.created_at
+worker-1  | 2026-03-17 15:09:39,687 INFO sqlalchemy.engine.Engine [generated in 0.00017s] (UUID('207543b8-5565-4ab5-baaf-7b6b92811c71'), UUID('321067ae-bcee-4e3f-9376-8203b633b57f'), 'Mock response for query.', 'Link in bio!', '[]', 'tiktok', 'draft')
+worker-1  | 2026-03-17 15:09:39,696 INFO sqlalchemy.engine.Engine SELECT captions.id, captions.script_id, captions.caption_text, captions.cta_text, captions.hashtags, captions.platform, captions.status, captions.created_at 
+worker-1  | FROM captions 
+worker-1  | WHERE captions.id = $1::UUID
+worker-1  | 2026-03-17 15:09:39,696 INFO sqlalchemy.engine.Engine [generated in 0.00012s] (UUID('207543b8-5565-4ab5-baaf-7b6b92811c71'),)
+worker-1  | [2026-03-17 15:09:39,696: INFO/ForkPoolWorker-2] SELECT captions.id, captions.script_id, captions.caption_text, captions.cta_text, captions.hashtags, captions.platform, captions.status, captions.created_at 
+worker-1  | FROM captions 
+worker-1  | WHERE captions.id = $1::UUID
+worker-1  | [2026-03-17 15:09:39,696: INFO/ForkPoolWorker-2] [generated in 0.00012s] (UUID('207543b8-5565-4ab5-baaf-7b6b92811c71'),)
+worker-1  | 2026-03-17 15:09:39,697 INFO sqlalchemy.engine.Engine COMMIT
+worker-1  | [2026-03-17 15:09:39,697: INFO/ForkPoolWorker-2] COMMIT
+worker-1  | [2026-03-17 15:09:39,701: INFO/ForkPoolWorker-2] Task app.tasks.ai_tasks.generate_caption_task[854d2239-d76d-475d-99c4-da6dfd5329c6] succeeded in 0.07287060700036818s: None
+worker-1  | [2026-03-17 15:09:42,671: INFO/MainProcess] Task app.tasks.render_tasks.render_video_task[842e5dee-274c-41bf-8064-1c8987ca7fc4] received
+worker-1  | [2026-03-17 15:09:42,672: ERROR/ForkPoolWorker-2] Exception closing connection <AdaptedConnection <asyncpg.connection.Connection object at 0x7eb8408e8050>>
+worker-1  | Traceback (most recent call last):
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/pool/base.py", line 376, in _close_connection
+worker-1  |     self._dialect.do_close(connection)
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 708, in do_close
+worker-1  |     dbapi_connection.close()
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 886, in close
+worker-1  |     self.await_(self._connection.close())
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+worker-1  |     raise exc.MissingGreenlet(
+worker-1  | sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+worker-1  | [2026-03-17 15:09:42,691: INFO/ForkPoolWorker-2] BEGIN (implicit)
+worker-1  | 2026-03-17 15:09:42,691 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+worker-1  | [2026-03-17 15:09:42,693: INFO/ForkPoolWorker-2] SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | [2026-03-17 15:09:42,693: INFO/ForkPoolWorker-2] [generated in 0.00015s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,693 INFO sqlalchemy.engine.Engine SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | 2026-03-17 15:09:42,693 INFO sqlalchemy.engine.Engine [generated in 0.00015s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,710 INFO sqlalchemy.engine.Engine SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:42,710 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:42,710: INFO/ForkPoolWorker-2] SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:42,710: INFO/ForkPoolWorker-2] [generated in 0.00019s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | 2026-03-17 15:09:42,717 INFO sqlalchemy.engine.Engine SELECT video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.id AS video_job_assets_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE video_job_assets.job_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:42,717 INFO sqlalchemy.engine.Engine [generated in 0.00018s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | [2026-03-17 15:09:42,717: INFO/ForkPoolWorker-2] SELECT video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.id AS video_job_assets_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE video_job_assets.job_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:42,717: INFO/ForkPoolWorker-2] [generated in 0.00018s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | [2026-03-17 15:09:42,718: INFO/ForkPoolWorker-2] SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | [2026-03-17 15:09:42,718: INFO/ForkPoolWorker-2] [cached since 0.0254s ago] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,718 INFO sqlalchemy.engine.Engine SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | 2026-03-17 15:09:42,718 INFO sqlalchemy.engine.Engine [cached since 0.0254s ago] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | [2026-03-17 15:09:42,719: INFO/ForkPoolWorker-2] SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:42,719: INFO/ForkPoolWorker-2] [cached since 0.009507s ago] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | 2026-03-17 15:09:42,719 INFO sqlalchemy.engine.Engine SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:42,719 INFO sqlalchemy.engine.Engine [cached since 0.009507s ago] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:42,720: INFO/ForkPoolWorker-2] SELECT video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.id AS video_job_assets_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE video_job_assets.job_id IN ($1::UUID)
+worker-1  | [2026-03-17 15:09:42,720: INFO/ForkPoolWorker-2] [cached since 0.003105s ago] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,720 INFO sqlalchemy.engine.Engine SELECT video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.id AS video_job_assets_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE video_job_assets.job_id IN ($1::UUID)
+worker-1  | 2026-03-17 15:09:42,720 INFO sqlalchemy.engine.Engine [cached since 0.003105s ago] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | [2026-03-17 15:09:42,721: INFO/ForkPoolWorker-2] UPDATE video_jobs SET status=$1::job_status, started_at=$2::TIMESTAMP WITH TIME ZONE WHERE video_jobs.id = $3::UUID
+worker-1  | [2026-03-17 15:09:42,721: INFO/ForkPoolWorker-2] [generated in 0.00010s] ('processing', datetime.datetime(2026, 3, 17, 15, 9, 42, 720841, tzinfo=datetime.timezone.utc), UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'))
+worker-1  | 2026-03-17 15:09:42,721 INFO sqlalchemy.engine.Engine UPDATE video_jobs SET status=$1::job_status, started_at=$2::TIMESTAMP WITH TIME ZONE WHERE video_jobs.id = $3::UUID
+worker-1  | 2026-03-17 15:09:42,721 INFO sqlalchemy.engine.Engine [generated in 0.00010s] ('processing', datetime.datetime(2026, 3, 17, 15, 9, 42, 720841, tzinfo=datetime.timezone.utc), UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'))
+worker-1  | [2026-03-17 15:09:42,723: INFO/ForkPoolWorker-2] SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | [2026-03-17 15:09:42,723: INFO/ForkPoolWorker-2] [generated in 0.00009s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,723 INFO sqlalchemy.engine.Engine SELECT video_jobs.id, video_jobs.script_id, video_jobs.created_by, video_jobs.status, video_jobs.render_config, video_jobs.output_path, video_jobs.duration_seconds, video_jobs.error_message, video_jobs.retry_count, video_jobs.started_at, video_jobs.completed_at, video_jobs.created_at 
+worker-1  | FROM video_jobs 
+worker-1  | WHERE video_jobs.id = $1::UUID
+worker-1  | 2026-03-17 15:09:42,723 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,724 INFO sqlalchemy.engine.Engine SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | 2026-03-17 15:09:42,724 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:42,724: INFO/ForkPoolWorker-2] SELECT scripts.id AS scripts_id, scripts.product_id AS scripts_product_id, scripts.angle_id AS scripts_angle_id, scripts.created_by AS scripts_created_by, scripts.hook AS scripts_hook, scripts.body AS scripts_body, scripts.cta AS scripts_cta, scripts.tone AS scripts_tone, scripts.platform AS scripts_platform, scripts.duration_seconds AS scripts_duration_seconds, scripts.status AS scripts_status, scripts.metadata AS scripts_metadata, scripts.created_at AS scripts_created_at, scripts.updated_at AS scripts_updated_at 
+worker-1  | FROM scripts 
+worker-1  | WHERE scripts.id = $1::UUID
+worker-1  | [2026-03-17 15:09:42,724: INFO/ForkPoolWorker-2] [generated in 0.00009s] (UUID('321067ae-bcee-4e3f-9376-8203b633b57f'),)
+worker-1  | [2026-03-17 15:09:42,725: INFO/ForkPoolWorker-2] SELECT video_job_assets.id AS video_job_assets_id, video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE $1::UUID = video_job_assets.job_id
+worker-1  | [2026-03-17 15:09:42,725: INFO/ForkPoolWorker-2] [generated in 0.00009s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | 2026-03-17 15:09:42,725 INFO sqlalchemy.engine.Engine SELECT video_job_assets.id AS video_job_assets_id, video_job_assets.job_id AS video_job_assets_job_id, video_job_assets.asset_id AS video_job_assets_asset_id, video_job_assets.sequence_order AS video_job_assets_sequence_order, video_job_assets.transform_config AS video_job_assets_transform_config 
+worker-1  | FROM video_job_assets 
+worker-1  | WHERE $1::UUID = video_job_assets.job_id
+worker-1  | 2026-03-17 15:09:42,725 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('ac8f53d7-0bff-4f85-91bb-cce082f3badf'),)
+worker-1  | [2026-03-17 15:09:42,726: INFO/ForkPoolWorker-2] COMMIT
+worker-1  | 2026-03-17 15:09:42,726 INFO sqlalchemy.engine.Engine COMMIT
+worker-1  | [2026-03-17 15:09:42,728: INFO/ForkPoolWorker-2] Starting render for job ac8f53d7-0bff-4f85-91bb-cce082f3badf
+worker-1  | [2026-03-17 15:09:42,729: INFO/ForkPoolWorker-2] BEGIN (implicit)
+worker-1  | 2026-03-17 15:09:42,729 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+worker-1  | 2026-03-17 15:09:42,729 INFO sqlalchemy.engine.Engine SELECT assets.id, assets.uploaded_by, assets.filename, assets.file_path, assets.asset_type, assets.mime_type, assets.file_size, assets.metadata, assets.status, assets.created_at 
+worker-1  | FROM assets 
+worker-1  | WHERE assets.id = $1::UUID
+worker-1  | 2026-03-17 15:09:42,729 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('712f50de-b87f-44f5-87cd-bda1690b85e4'),)
+worker-1  | [2026-03-17 15:09:42,729: INFO/ForkPoolWorker-2] SELECT assets.id, assets.uploaded_by, assets.filename, assets.file_path, assets.asset_type, assets.mime_type, assets.file_size, assets.metadata, assets.status, assets.created_at 
+worker-1  | FROM assets 
+worker-1  | WHERE assets.id = $1::UUID
+worker-1  | [2026-03-17 15:09:42,729: INFO/ForkPoolWorker-2] [generated in 0.00009s] (UUID('712f50de-b87f-44f5-87cd-bda1690b85e4'),)
+worker-1  | [2026-03-17 15:09:42,736: INFO/ForkPoolWorker-2] Found 1 images and audio=False
+worker-1  | [2026-03-17 15:09:42,737: INFO/ForkPoolWorker-2] Executing FFmpeg command for job ac8f53d7-0bff-4f85-91bb-cce082f3badf
+worker-1  | [2026-03-17 15:09:42,737: INFO/ForkPoolWorker-2] Running FFmpeg: /usr/bin/ffmpeg -y -loop 1 -t 30 -i /app/media/uploads/image/1f4d6843907a4310ae5af03a1dd6a6ab.png -vf scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,drawtext=text='Stop scrolling! Here is the best tech product.':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=h-100 -c:v libx264 -preset fast -crf 23 -pix_fmt yuv420p -r 30 -t 30 /app/media/renders/render_ac8f53d70bff4f8591bbcce082f3badf.mp4

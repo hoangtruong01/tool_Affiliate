@@ -66,7 +66,7 @@ def render_video_task(self, job_id: str):
                 # Build FFmpeg command
                 config = RenderConfig(
                     output_path=output_path,
-                    duration=job.duration_seconds or 30
+                    duration=job.duration_seconds or 3
                 )
                 
                 # For MVP, we use those images and maybe a hook text overlay

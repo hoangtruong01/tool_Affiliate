@@ -12,6 +12,17 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 
+def escape_drawtext(text: str) -> str:
+    """Escape special characters for FFmpeg drawtext filter."""
+    # FFmpeg drawtext requires escaping: \ ' : !
+    text = text.replace("\\", "\\\\")
+    text = text.replace("'", "\\'")
+    text = text.replace(":", "\\:")
+    text = text.replace("!", "\\!")
+    return text
+
+
+
 @dataclass
 class RenderConfig:
     """Configuration for an FFmpeg render job."""
@@ -79,7 +90,7 @@ def build_slideshow_command(
         # Text overlay
         if text_overlay:
             filter_parts.append(
-                f"[outv]drawtext=text='{text_overlay}':"
+                f"[outv]drawtext=text='{escape_drawtext(text_overlay)}':"
                 f"fontsize={config.font_size}:fontcolor={config.font_color}:"
                 f"x=(w-text_w)/2:y=h-100:enable='between(t,0,5)'[final]"
             )
@@ -94,7 +105,7 @@ def build_slideshow_command(
         filter_str = f"scale={config.width}:{config.height}:force_original_aspect_ratio=decrease,pad={config.width}:{config.height}:(ow-iw)/2:(oh-ih)/2"
         if text_overlay:
             filter_str += (
-                f",drawtext=text='{text_overlay}':"
+                f",drawtext=text='{escape_drawtext(text_overlay)}':"
                 f"fontsize={config.font_size}:fontcolor={config.font_color}:"
                 f"x=(w-text_w)/2:y=h-100"
             )
