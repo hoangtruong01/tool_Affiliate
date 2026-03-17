@@ -11,7 +11,19 @@ from abc import ABC, abstractmethod # Keep ABC, abstractmethod if they are used 
 import openai # Changed from 'from openai import AsyncOpenAI'
 from app.config import settings
 
-logger = logging.getLogger(__name__)
+async def analyze_product(
+    product_name: str,
+    description: str,
+    target_audience: str,
+    provider_name: str = "openai",
+) -> dict:
+    """
+    Analyze a product to extract selling angles.
+    """
+    provider = get_ai_provider(provider_name)
+    
+    prompt = f"Analyze {product_name}..."
+    system_prompt = "You are a marketing expert."
 
     result = await provider.generate_text(prompt, system_prompt)
 
