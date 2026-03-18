@@ -54,7 +54,7 @@ export default function ScriptsPage() {
 
   const fetchScripts = async () => {
     try {
-      const response = await api.get("/scripts");
+      const response = await api.get("/scripts/");
       setScripts(response.data.items);
     } catch (error) {
       console.error("Failed to fetch scripts", error);
@@ -65,7 +65,7 @@ export default function ScriptsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get("/products", {
+      const response = await api.get("/products/", {
         params: { status: "analyzed" },
       });
       setProducts(response.data.items);

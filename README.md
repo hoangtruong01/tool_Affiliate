@@ -47,10 +47,34 @@ docker-compose exec api alembic upgrade head
 | Backend API (Swagger) | http://localhost:8000/docs |
 | n8n Workflows         | http://localhost:5678      |
 
+### 5. Seed Demo Data (Optional)
+
+```bash
+docker-compose exec api python -m app.seed_data
+```
+
 ### 6. Default Admin Login
 
 - Email: `admin@example.com`
-- Password: (set via `FIRST_ADMIN_PASSWORD` in `.env`)
+- Password: `admin123` (or set via `FIRST_ADMIN_PASSWORD` in `.env`)
+
+---
+
+## 🏗 Phase C: Core Module Stabilization
+
+Phase C stabilized the review and job management lifecycle.
+
+### Key Features
+- **Job Lifecycle**: Strict status transitions (`queued` -> `processing` -> `rendered` -> `needs_review` -> `approved/rejected`).
+- **Control Ops**: Added `/cancel` and `/retry` endpoints with validation.
+- **RBAC**: Approval actions enforced for `admin` and `reviewer` roles.
+- **UI Connectivity**: Fully functional Approval Queue and Jobs management.
+
+### Manual Verification Checklist
+1. **Approve/Reject**: Go to `/approvals`, perform actions, verify status updates in `/jobs`.
+2. **Retry**: Find a `failed` or `rejected` job in `/jobs`, click "Retry", verify it moves back to `queued`.
+3. **Cancel**: Find a `queued` or `processing` job in `/jobs`, click "Cancel", verify it moves to `cancelled`.
+4. **RBAC**: Log in as a `viewer` (if exists) and verify they cannot see or click action buttons.
 
 ---
 

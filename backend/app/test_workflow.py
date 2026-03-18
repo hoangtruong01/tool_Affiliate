@@ -65,7 +65,7 @@ def run():
 
     # ── Step 1: Login ──
     step(1, "Login")
-    code, data = api_call("POST", "/auth/login", json_data={"email": "admin@example.com", "password": "admin123456"})
+    code, data = api_call("POST", "/auth/login", json_data={"email": "admin@example.com", "password": "admin123"})
     if code != 200:
         print(f"  FAIL: HTTP {code} — {data}")
         return

@@ -34,7 +34,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await api.get("/analytics/dashboard");
+        const response = await api.get("/analytics/dashboard/");
         setStats(response.data);
       } catch (error: any) {
         console.error("Failed to fetch stats", error);

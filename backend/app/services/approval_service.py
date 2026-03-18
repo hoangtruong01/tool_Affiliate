@@ -37,20 +37,30 @@ async def create_approval(
     decision: str,
     comment: Optional[str] = None,
 ) -> Approval:
-    """Create an approval decision and update the entity's status."""
-    # Validate entity type
+    """Create an approval decision and update the entity's status with normalization."""
+    from app.services import render_service  # Lazy import to avoid circularity if any
+
+    # Normalize decision
+    decision = decision.lower()
+    if decision == "approve": decision = "approved"
+    if decision == "reject": decision = "rejected"
+
     if entity_type not in ENTITY_MAP:
         raise ValueError(f"Invalid entity_type: {entity_type}")
 
     # Update entity status
-    model = ENTITY_MAP[entity_type]
-    result = await db.execute(select(model).where(model.id == entity_id))
-    entity = result.scalar_one_or_none()
-    if not entity:
-        raise ValueError(f"{entity_type} {entity_id} not found")
-
-    new_status = DECISION_TO_STATUS.get(decision, decision)
-    entity.status = new_status
+    if entity_type == "video_job":
+        new_status = DECISION_TO_STATUS.get(decision, decision)
+        await render_service.update_job_status(db, entity_id, new_status)
+    else:
+        model = ENTITY_MAP[entity_type]
+        result = await db.execute(select(model).where(model.id == entity_id))
+        entity = result.scalar_one_or_none()
+        if not entity:
+            raise ValueError(f"{entity_type} {entity_id} not found")
+        
+        new_status = DECISION_TO_STATUS.get(decision, decision)
+        entity.status = new_status
 
     # Create approval record
     approval = Approval(

@@ -51,7 +51,7 @@ export default function JobsPage() {
 
   const fetchJobs = async () => {
     try {
-      const response = await api.get("/jobs");
+      const response = await api.get("/jobs/");
       setJobs(response.data.items);
     } catch (error) {
       console.error("Failed to fetch jobs", error);
@@ -63,8 +63,8 @@ export default function JobsPage() {
   const fetchData = async () => {
     try {
       const [scriptsRes, assetsRes] = await Promise.all([
-        api.get("/scripts", { params: { status: "approved" } }),
-        api.get("/assets", { params: { asset_type: "image" } }),
+        api.get("/scripts/", { params: { status: "approved" } }),
+        api.get("/assets/", { params: { asset_type: "image" } }),
       ]);
       setScripts(scriptsRes.data.items);
       setAssets(assetsRes.data.items);
@@ -109,11 +109,32 @@ export default function JobsPage() {
       case "approved":
         return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
       case "failed":
+      case "rejected":
         return <AlertCircle className="w-5 h-5 text-red-500" />;
+      case "cancelled":
+        return <X className="w-5 h-5 text-slate-500" />;
       case "processing":
         return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
       default:
         return <Clock className="w-5 h-5 text-amber-500" />;
+    }
+  };
+
+  const handleRetry = async (jobId: string) => {
+    try {
+      await api.post(`/jobs/${jobId}/retry`);
+      fetchJobs();
+    } catch (error) {
+      console.error("Retry failed", error);
+    }
+  };
+
+  const handleCancel = async (jobId: string) => {
+    try {
+      await api.post(`/jobs/${jobId}/cancel`);
+      fetchJobs();
+    } catch (error) {
+      console.error("Cancel failed", error);
     }
   };
 
@@ -195,16 +216,21 @@ export default function JobsPage() {
                             "text-xs font-bold capitalize",
                             job.status === "needs_review" || job.status === "approved"
                               ? "text-emerald-500"
-                              : job.status === "failed"
+                              : job.status === "failed" || job.status === "rejected"
                                 ? "text-red-500"
                                 : job.status === "processing"
                                   ? "text-blue-500"
-                                  : "text-amber-500",
+                                  : "text-slate-500",
                           )}
                         >
                           {job.status}
                         </span>
                       </div>
+                      {job.error_message && (
+                        <p className="text-[10px] text-red-400 mt-1 max-w-[150px] truncate" title={job.error_message}>
+                          {job.error_message}
+                        </p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-slate-400 text-xs">
                       {formatDate(job.created_at)}
@@ -215,8 +241,22 @@ export default function JobsPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {(job.status === "needs_review" || job.status === "approved") && (
-                          <button className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20">
+                          <button className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20" title="Download">
                             <Download className="w-4 h-4" />
+                          </button>
+                        )}
+                        {(job.status === "failed" || job.status === "rejected") && (
+                          <button 
+                            onClick={() => handleRetry(job.id)}
+                            className="p-2 bg-amber-600/10 text-amber-500 hover:bg-amber-600 hover:text-white rounded-lg transition-all border border-amber-600/20" title="Retry">
+                            <Clock className="w-4 h-4" />
+                          </button>
+                        )}
+                        {(job.status === "queued" || job.status === "processing") && (
+                          <button 
+                            onClick={() => handleCancel(job.id)}
+                            className="p-2 bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white rounded-lg transition-all border border-red-600/20" title="Cancel">
+                            <X className="w-4 h-4" />
                           </button>
                         )}
                         <button className="p-2 bg-slate-800 text-slate-500 hover:text-white rounded-lg transition-all border border-slate-700">

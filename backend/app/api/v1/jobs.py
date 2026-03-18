@@ -81,20 +81,40 @@ async def retry_job_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    """Retry a failed render job."""
-    job = await get_video_job(db, job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    if job.status != "failed":
-        raise HTTPException(status_code=400, detail="Only failed jobs can be retried")
+    """Retry a failed or rejected render job."""
+    from app.services.render_service import update_job_status
+    
+    try:
+        job = await update_job_status(db, job_id, "queued")
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        job.retry_count += 1
+        job.error_message = None
+        await db.flush()
 
-    job.status = "queued"
-    job.retry_count += 1
-    job.error_message = None
-    await db.flush()
+        render_video_task.delay(str(job.id))
+        return {"message": "Job retry queued", "job_id": str(job.id)}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    render_video_task.delay(str(job.id))
-    return {"message": "Job retry queued", "job_id": str(job.id)}
+
+@router.post("/{job_id}/cancel", status_code=status.HTTP_200_OK)
+async def cancel_job_endpoint(
+    job_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_role("admin", "reviewer"))],
+):
+    """Cancel a queued or processing job."""
+    from app.services.render_service import cancel_video_job as svc_cancel_job
+    
+    try:
+        job = await svc_cancel_job(db, job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        return {"message": "Job cancelled", "job_id": str(job.id)}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/{job_id}/approve")
@@ -105,13 +125,10 @@ async def approve_job_endpoint(
     current_user: Annotated[User, Depends(require_role("admin", "reviewer"))],
 ):
     """Approve or reject a rendered video."""
-    job = await get_video_job(db, job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    if job.status != "needs_review":
-        raise HTTPException(status_code=400, detail="Only jobs pending review can be reviewed")
-
-    approval = await create_approval(
-        db, "video_job", job_id, current_user.id, data.decision, data.comment
-    )
-    return {"message": f"Job {data.decision}", "approval_id": str(approval.id)}
+    try:
+        approval = await create_approval(
+            db, "video_job", job_id, current_user.id, data.decision, data.comment
+        )
+        return {"message": f"Job {approval.decision}", "approval_id": str(approval.id)}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -12,7 +12,7 @@ from app.database import Base
 
 JobStatus = ENUM(
     "queued", "processing", "rendered", "needs_review", "failed",
-    "approved", "rejected", "published",
+    "approved", "rejected", "published", "cancelled",
     name="job_status", create_type=True,
 )
 

@@ -19,6 +19,28 @@ from app.schemas.video_job import VideoJobCreate
 logger = logging.getLogger(__name__)
 
 
+ALLOWED_TRANSITIONS = {
+    "queued": ["processing", "cancelled", "failed"],
+    "processing": ["rendered", "needs_review", "failed", "cancelled"],
+    "rendered": ["needs_review", "failed"],
+    "needs_review": ["approved", "rejected", "failed"],
+    "approved": ["published", "failed"],
+    "rejected": ["queued", "failed"],
+    "failed": ["queued"],
+    "cancelled": ["queued"],
+    "published": [],
+}
+
+
+def validate_status_transition(current: str, target: str):
+    """Ensure a status transition is legally allowed."""
+    if current == target:
+        return
+    allowed = ALLOWED_TRANSITIONS.get(current, [])
+    if target not in allowed:
+        raise ValueError(f"Invalid transition from {current} to {target}")
+
+
 async def create_video_job(
     db: AsyncSession,
     data: VideoJobCreate,
@@ -93,16 +115,19 @@ async def update_job_status(
     error_message: Optional[str] = None,
     duration_seconds: Optional[int] = None,
 ) -> Optional[VideoJob]:
-    """Update a job's status and related fields."""
+    """Update a job's status and related fields with validation."""
     job = await get_video_job(db, job_id)
     if not job:
         return None
+
+    # Validate transition
+    validate_status_transition(job.status, status)
 
     job.status = status
 
     if status == "processing":
         job.started_at = datetime.now(timezone.utc)
-    elif status in ("rendered", "needs_review", "failed"):
+    elif status in ("rendered", "needs_review", "failed", "cancelled"):
         job.completed_at = datetime.now(timezone.utc)
 
     if output_path:
@@ -115,3 +140,15 @@ async def update_job_status(
     await db.flush()
     await db.refresh(job)
     return job
+
+
+async def cancel_video_job(db: AsyncSession, job_id: uuid.UUID) -> Optional[VideoJob]:
+    """Cancel a queued or processing job."""
+    job = await get_video_job(db, job_id)
+    if not job:
+        return None
+
+    if job.status not in ("queued", "processing"):
+        raise ValueError(f"Cannot cancel job in status: {job.status}")
+
+    return await update_job_status(db, job_id, "cancelled", error_message="Cancelled by user")

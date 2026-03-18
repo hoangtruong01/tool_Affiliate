@@ -24,8 +24,8 @@ const menuItems = [
   { icon: FileText, label: "Scripts", href: "/scripts" },
   { icon: Library, label: "Asset Library", href: "/assets" },
   { icon: PlayCircle, label: "Video Jobs", href: "/jobs" },
+  { icon: BarChart3, label: "Product Intelligence", href: "/compare" },
   { icon: CheckCircle2, label: "Approvals", href: "/approvals" },
-  { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: Settings, label: "Settings", href: "/admin" },
 ];
 

@@ -30,10 +30,19 @@ export default function DashboardLayout({
     return <div className="min-h-screen bg-slate-950">{children}</div>;
   }
 
-  // If not logged in and not on auth page, Next.js middleware or api interceptor handles it,
-  // but we should still handle the UI state here.
+  // If not logged in and not on auth page, redirect to login
+  React.useEffect(() => {
+    if (!loading && !user && !isAuthPage) {
+      window.location.href = "/login";
+    }
+  }, [loading, user, isAuthPage]);
+
   if (!user && !isAuthPage) {
-    return null; // or a redirect component
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-slate-950">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+      </div>
+    );
   }
 
   return (

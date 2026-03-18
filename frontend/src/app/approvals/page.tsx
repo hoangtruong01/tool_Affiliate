@@ -40,8 +40,8 @@ export default function ApprovalsPage() {
       // In a real app, we'd have a specific /approvals endpoint
       // Here we'll fetch scripts and jobs with 'pending_approval' status
       const [scriptsRes, jobsRes] = await Promise.all([
-        api.get("/scripts", { params: { status: "pending_approval" } }),
-        api.get("/jobs", { params: { status: "needs_review" } }),
+        api.get("/scripts/", { params: { status: "pending_approval" } }),
+        api.get("/jobs/", { params: { status: "needs_review" } }),
       ]);
 
       const scriptItems: ApprovalItem[] = scriptsRes.data.items.map(
@@ -87,11 +87,14 @@ export default function ApprovalsPage() {
     setActioning(item.id);
     try {
       if (item.type === "script") {
+        // Scripts use a direct PATCH for status in this MVP version
+        // but we'll normalize the value
         const status = action === "approve" ? "approved" : "rejected";
         await api.patch(`/scripts/${item.original_id}`, { status });
       } else {
+        // Video jobs use the dedicated approval endpoint
         await api.post(`/jobs/${item.original_id}/approve`, {
-          action: action === "approve" ? "approve" : "reject",
+          decision: action === "approve" ? "approved" : "rejected",
           comment: "Reviewed via dashboard",
         });
       }
