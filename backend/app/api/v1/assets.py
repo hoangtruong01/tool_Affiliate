@@ -44,8 +44,14 @@ async def upload_asset_endpoint(
     asset_type: Optional[str] = None,
 ):
     """Upload a media file."""
-    asset = await upload_asset(db, file, current_user.id, asset_type)
-    return AssetResponse.model_validate(asset)
+    try:
+        asset = await upload_asset(db, file, current_user.id, asset_type)
+        return AssetResponse.model_validate(asset)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)

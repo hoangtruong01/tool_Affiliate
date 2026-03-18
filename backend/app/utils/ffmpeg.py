@@ -143,17 +143,18 @@ def run_ffmpeg(cmd: List[str]) -> tuple[bool, str]:
             cmd,
             capture_output=True,
             text=True,
-            timeout=600,  # 10 min max
+            timeout=settings.FFMPEG_TIMEOUT_SECONDS,
         )
         if result.returncode == 0:
             logger.info("FFmpeg render completed successfully")
-            return True, result.stdout
+            return True, result.stdout + "\n" + result.stderr
         else:
-            logger.error(f"FFmpeg error: {result.stderr}")
-            return False, result.stderr
-    except subprocess.TimeoutExpired:
-        logger.error("FFmpeg render timed out after 600s")
-        return False, "Render timed out after 600 seconds"
+            logger.error(f"FFmpeg error (code {result.returncode}): {result.stderr}")
+            return False, result.stderr or result.stdout
+    except subprocess.TimeoutExpired as e:
+        stderr_msg = e.stderr.decode() if e.stderr else "No stderr available"
+        logger.error(f"FFmpeg render timed out after {settings.FFMPEG_TIMEOUT_SECONDS}s: {stderr_msg}")
+        return False, f"Render timed out after {settings.FFMPEG_TIMEOUT_SECONDS} seconds. {stderr_msg}"
     except Exception as e:
         logger.error(f"FFmpeg exception: {str(e)}")
         return False, str(e)

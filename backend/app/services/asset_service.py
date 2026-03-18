@@ -4,10 +4,12 @@ Asset service — media file upload and management.
 import uuid
 import os
 import logging
+import io
 from typing import Optional
 from datetime import datetime
 
 from fastapi import UploadFile
+from PIL import Image
 from sqlalchemy import select, func as sql_func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,6 +57,17 @@ async def upload_asset(
 
     # Write file
     content = await file.read()
+    
+    # Validate image integrity if it's an image
+    if asset_type == "image":
+        try:
+            img = Image.open(io.BytesIO(content))
+            img.verify()
+            logger.info(f"Image validation passed for {file.filename}")
+        except Exception as e:
+            logger.error(f"Image validation failed for {file.filename}: {str(e)}")
+            raise ValueError(f"Invalid or corrupt image file: {str(e)}")
+
     with open(file_path, "wb") as f:
         f.write(content)
 

@@ -156,9 +156,18 @@ def run():
         results["caption"] = "SKIP"
 
     # ── Step 6: Asset Upload ──
-    step(6, "Asset Upload")
+    step(6, "Asset Upload (Valid Image)")
+    
+    # Generate a real 1x1 PNG programmatically
+    # Smallest possible valid PNG: 8k-ish or just use a real one
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new('RGB', (1, 1), color='red').save(buf, format='PNG')
+    valid_png_data = buf.getvalue().decode('latin-1')
+
     code, asset_data = api_call("POST", "/assets/upload", token, multipart={
-        "file": ("test_image.png", "FAKEPNGDATA89a\x1a\n", "image/png")
+        "file": ("test_image.png", valid_png_data, "image/png")
     })
     if code == 201:
         asset_id = asset_data["id"]
@@ -168,6 +177,18 @@ def run():
         print(f"  FAIL: HTTP {code} — {asset_data}")
         asset_id = None
         results["asset"] = "FAIL"
+
+    # ── Step 6.1: Negative Asset Upload (Invalid Image) ──
+    step(6.1, "Asset Upload (Invalid Image - Negative Test)")
+    code, neg_asset_data = api_call("POST", "/assets/upload", token, multipart={
+        "file": ("fake_image.png", "NOT_A_PNG_DATA", "image/png")
+    })
+    if code == 400:
+        print(f"  ✓ Rejected invalid image as expected: {neg_asset_data.get('detail')}")
+        results["asset_negative"] = "PASS"
+    else:
+        print(f"  FAIL: Expected 400, got {code} — {neg_asset_data}")
+        results["asset_negative"] = "FAIL"
 
     # ── Step 7: Video Job Creation ──
     step(7, "Video Job + Render Pipeline")

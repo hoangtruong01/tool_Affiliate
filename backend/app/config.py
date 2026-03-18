@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     MEDIA_DIR: str = "/app/media"
     MAX_UPLOAD_SIZE_MB: int = 100
     FFMPEG_PATH: str = "/usr/bin/ffmpeg"
+    FFMPEG_TIMEOUT_SECONDS: int = 120
 
     class Config:
         env_file = ".env"
