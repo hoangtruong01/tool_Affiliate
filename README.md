@@ -60,21 +60,27 @@ docker-compose exec api python -m app.seed_data
 
 ---
 
-## 🏗 Phase C: Core Module Stabilization
+## 🏗 Phase C: Job Lifecycle & Review Management
 
-Phase C stabilized the review and job management lifecycle.
+Stabilize the review and job management lifecycle for MVP use.
 
 ### Key Features
-- **Job Lifecycle**: Strict status transitions (`queued` -> `processing` -> `rendered` -> `needs_review` -> `approved/rejected`).
-- **Control Ops**: Added `/cancel` and `/retry` endpoints with validation.
-- **RBAC**: Approval actions enforced for `admin` and `reviewer` roles.
-- **UI Connectivity**: Fully functional Approval Queue and Jobs management.
+- **Strict Job Lifecycle**: Centralized status transitions (`queued` -> `processing` -> `rendered` -> `needs_review` -> `approved/rejected`).
+- **Control Operations**: `/cancel` and `/retry` endpoints with state-dependent validation.
+- **Enhanced Review Flow**: Approval decisions (Approve/Reject) with RBAC enforcement and reviewer metadata persistence.
+- **Frontend Dashboard**: Fully functional Jobs page and Approval Queue with video preview and conditional actions.
+
+### Local Setup (Phase C)
+1. Run `python backend/app/seed_data.py` to populate the database.
+2. Access the frontend at `http://localhost:3000`.
+3. Try the manual verification checklist below.
 
 ### Manual Verification Checklist
-1. **Approve/Reject**: Go to `/approvals`, perform actions, verify status updates in `/jobs`.
-2. **Retry**: Find a `failed` or `rejected` job in `/jobs`, click "Retry", verify it moves back to `queued`.
-3. **Cancel**: Find a `queued` or `processing` job in `/jobs`, click "Cancel", verify it moves to `cancelled`.
-4. **RBAC**: Log in as a `viewer` (if exists) and verify they cannot see or click action buttons.
+- [ ] **Job Transitions**: Attempt to approve a `processing` job via API (should fail).
+- [ ] **Approval Flow**: Go to `/approvals`, preview the video, add a comment, and approve.
+- [ ] **Cancel/Retry**: Cancel a `queued` job, then retry it.
+- [ ] **RBAC**: Verify only `admin` and `reviewer` can perform approval actions.
+- [ ] **Error Handling**: Find a `failed` job and verify the `error_message` is displayed in the Jobs page.
 
 ---
 

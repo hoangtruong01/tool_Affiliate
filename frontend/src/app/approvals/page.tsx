@@ -27,6 +27,7 @@ interface ApprovalItem {
   status: string;
   created_at: string;
   original_id: string;
+  output_path?: string;
 }
 
 export default function ApprovalsPage() {
@@ -34,6 +35,8 @@ export default function ApprovalsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"pending" | "history">("pending");
   const [actioning, setActioning] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, string>>({});
+  const [previewItem, setPreviewItem] = useState<ApprovalItem | null>(null);
 
   const fetchApprovals = async () => {
     try {
@@ -66,6 +69,7 @@ export default function ApprovalsPage() {
         creator: "Render Engine",
         status: j.status,
         created_at: j.created_at,
+        output_path: j.output_path,
       }));
 
       setItems([...scriptItems, ...jobItems]);
@@ -95,9 +99,14 @@ export default function ApprovalsPage() {
         // Video jobs use the dedicated approval endpoint
         await api.post(`/jobs/${item.original_id}/approve`, {
           decision: action === "approve" ? "approved" : "rejected",
-          comment: "Reviewed via dashboard",
+          comment: comments[item.id] || "Reviewed via dashboard",
         });
       }
+      // Clear comment for this item
+      const newComments = { ...comments };
+      delete newComments[item.id];
+      setComments(newComments);
+      
       await fetchApprovals();
     } catch (error) {
       console.error("Action failed", error);
@@ -217,6 +226,25 @@ export default function ApprovalsPage() {
                       Created by {item.creator}
                     </span>
                   </div>
+
+                  {item.output_path && (
+                    <button 
+                      onClick={() => setPreviewItem(item)}
+                      className="mt-4 mb-2 flex items-center gap-2 text-blue-500 hover:text-blue-400 text-sm font-bold transition-all"
+                    >
+                      <PlayCircle className="w-4 h-4" /> Preview Video
+                    </button>
+                  )}
+
+                  <div className="mt-4">
+                    <textarea
+                      placeholder="Add a review note (optional)..."
+                      className="w-full bg-slate-900/50 border border-slate-800 rounded-xl p-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+                      rows={2}
+                      value={comments[item.id] || ""}
+                      onChange={(e) => setComments({ ...comments, [item.id]: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <div className="p-6 bg-slate-900/30 border-t md:border-t-0 md:border-l border-slate-800 flex flex-row md:flex-col justify-center gap-3 min-w-[200px]">
@@ -250,6 +278,53 @@ export default function ApprovalsPage() {
           </AnimatePresence>
         </div>
       )}
+
+      {/* Video Preview Modal */}
+      <AnimatePresence>
+        {previewItem && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPreviewItem(null)}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-5xl aspect-video glass-card rounded-3xl overflow-hidden relative z-10 group shadow-2xl shadow-blue-500/10"
+            >
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="absolute top-6 right-6 z-20 bg-slate-950/50 hover:bg-slate-900 p-2 rounded-full text-white/50 hover:text-white transition-all backdrop-blur-md border border-white/10"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+              
+              <div className="absolute top-6 left-6 z-20 bg-slate-950/50 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
+                <p className="text-sm font-bold text-white mb-0.5">{previewItem.title}</p>
+                <p className="text-xs text-blue-400 font-medium">Status: {previewItem.status}</p>
+              </div>
+
+              {previewItem.output_path ? (
+                <video 
+                  src={previewItem.output_path}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain bg-black"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                  <PlayCircle className="w-16 h-16 mb-4 opacity-10" />
+                  <p>Video output not available</p>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

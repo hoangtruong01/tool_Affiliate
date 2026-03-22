@@ -120,7 +120,7 @@ async def seed_data():
                 script_id=script.id,
                 created_by=admin.id,
                 status="needs_review",
-                output_path="/app/data/renders/demo_video.mp4",
+                output_path="http://localhost:8000/media/renders/demo_video.mp4",
                 duration_seconds=15,
                 started_at=datetime.now(timezone.utc),
                 completed_at=datetime.now(timezone.utc)

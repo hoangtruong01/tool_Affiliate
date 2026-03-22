@@ -25,8 +25,8 @@ ALLOWED_TRANSITIONS = {
     "rendered": ["needs_review", "failed"],
     "needs_review": ["approved", "rejected", "failed"],
     "approved": ["published", "failed"],
-    "rejected": ["queued", "failed"],
-    "failed": ["queued"],
+    "rejected": ["queued"],  # Only retry/re-queue is allowed
+    "failed": ["queued"],    # Only retry/re-queue is allowed
     "cancelled": ["queued"],
     "published": [],
 }

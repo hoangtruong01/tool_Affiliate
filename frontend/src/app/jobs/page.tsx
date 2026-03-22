@@ -48,6 +48,7 @@ export default function JobsPage() {
   const [selectedScript, setSelectedScript] = useState("");
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
+  const [previewJob, setPreviewJob] = useState<VideoJob | null>(null);
 
   const fetchJobs = async () => {
     try {
@@ -239,13 +240,22 @@ export default function JobsPage() {
                       {job.duration_seconds ? `${job.duration_seconds}s` : "-"}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        {(job.status === "needs_review" || job.status === "approved") && (
-                          <button className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20" title="Download">
-                            <Download className="w-4 h-4" />
+                        {job.output_path && (
+                          <button 
+                            onClick={() => setPreviewJob(job)}
+                            className="p-2 bg-emerald-600/10 text-emerald-500 hover:bg-emerald-600 hover:text-white rounded-lg transition-all border border-emerald-600/20" title="Preview">
+                            <PlayCircle className="w-4 h-4" />
                           </button>
                         )}
-                        {(job.status === "failed" || job.status === "rejected") && (
+                        {(job.status === "needs_review" || job.status === "approved") && job.output_path && (
+                          <a 
+                            href={job.output_path}
+                            download
+                            className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20" title="Download">
+                            <Download className="w-4 h-4" />
+                          </a>
+                        )}
+                        {(job.status === "failed" || job.status === "rejected" || job.status === "cancelled") && (
                           <button 
                             onClick={() => handleRetry(job.id)}
                             className="p-2 bg-amber-600/10 text-amber-500 hover:bg-amber-600 hover:text-white rounded-lg transition-all border border-amber-600/20" title="Retry">
@@ -262,7 +272,6 @@ export default function JobsPage() {
                         <button className="p-2 bg-slate-800 text-slate-500 hover:text-white rounded-lg transition-all border border-slate-700">
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -389,6 +398,53 @@ export default function JobsPage() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Video Preview Modal */}
+      <AnimatePresence>
+        {previewJob && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPreviewJob(null)}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-5xl aspect-video glass-card rounded-3xl overflow-hidden relative z-10 group shadow-2xl shadow-blue-500/10"
+            >
+              <button
+                onClick={() => setPreviewJob(null)}
+                className="absolute top-6 right-6 z-20 bg-slate-950/50 hover:bg-slate-900 p-2 rounded-full text-white/50 hover:text-white transition-all backdrop-blur-md border border-white/10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="absolute top-6 left-6 z-20 bg-slate-950/50 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
+                <p className="text-sm font-bold text-white mb-0.5">{previewJob.script?.product.name}</p>
+                <p className="text-xs text-blue-400 font-medium">Status: {previewJob.status}</p>
+              </div>
+
+              {previewJob.output_path ? (
+                <video 
+                  src={previewJob.output_path}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain bg-black"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                  <PlayCircle className="w-16 h-16 mb-4 opacity-10" />
+                  <p>Video output not available</p>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
