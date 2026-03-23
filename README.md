@@ -60,17 +60,33 @@ docker-compose exec api python -m app.seed_data
 
 ---
 
-## 🏗 Phase C: Job Lifecycle & Review Management
+## Phase C: Stable Review Workflow
 
-Stabilize the review and job management lifecycle for MVP use.
+Phase C introduces strict status transitions and centralized job management.
 
-### Key Features
+### Workflow
+1.  **Creation**: Jobs start as `queued`.
+2.  **Processing**: Worker picks up job -> `processing`.
+3.  **Review**: Render finishes -> `needs_review`.
+4.  **Decision**: Admin/Reviewer `approves` or `rejects`.
+    - `approved` -> Final state (ready for publish).
+    - `rejected` -> Can be `retried` (back to `queued`).
+5.  **Failure/Cancel**: 
+    - `failed` or `cancelled` jobs can be `retried`.
+
+### Local Setup & Verification
+1.  **Seed Data**: Run `python backend/app/seed_data.py` to create a demo environment.
+2.  **Running Tests**: `pytest backend/app/test_transitions.py` to verify state machine.
+3.  **Manual Check**:
+    - [ ] Navigate to `/approvals` to see pending jobs.
+    - [ ] Click `Approve` or `Reject` and check `Approval History` tab.
+    - [ ] In `/jobs`, verify `Retry` button appears for failed/rejected/cancelled.
+    - [ ] Verify `Cancel` button appears for queued/processing.
 - **Strict Job Lifecycle**: Centralized status transitions (`queued` -> `processing` -> `rendered` -> `needs_review` -> `approved/rejected`).
 - **Control Operations**: `/cancel` and `/retry` endpoints with state-dependent validation.
 - **Enhanced Review Flow**: Approval decisions (Approve/Reject) with RBAC enforcement and reviewer metadata persistence.
 - **Frontend Dashboard**: Fully functional Jobs page and Approval Queue with video preview and conditional actions.
 
-### Local Setup (Phase C)
 1. Run `python backend/app/seed_data.py` to populate the database.
 2. Access the frontend at `http://localhost:3000`.
 3. Try the manual verification checklist below.

@@ -40,27 +40,30 @@ export default function ApprovalsPage() {
 
   const fetchApprovals = async () => {
     try {
+      setLoading(true);
       // In a real app, we'd have a specific /approvals endpoint
-      // Here we'll fetch scripts and jobs with 'pending_approval' status
+      // Here we'll fetch scripts and jobs based on activeTab
+      const statuses = activeTab === "pending" 
+        ? { script: "pending_approval", job: "needs_review" }
+        : { script: "approved,rejected", job: "approved,rejected" };
+
       const [scriptsRes, jobsRes] = await Promise.all([
-        api.get("/scripts/", { params: { status: "pending_approval" } }),
-        api.get("/jobs/", { params: { status: "needs_review" } }),
+        api.get("/scripts/", { params: { status: statuses.script } }),
+        api.get("/jobs/", { params: { status: statuses.job } }),
       ]);
 
-      const scriptItems: ApprovalItem[] = scriptsRes.data.items.map(
-        (s: any) => ({
-          id: `script-${s.id}`,
-          original_id: s.id,
-          type: "script",
-          title: `Script: ${s.product.name}`,
-          details: s.hook,
-          creator: s.user?.full_name || "AI System",
-          status: s.status,
-          created_at: s.created_at,
-        }),
-      );
+      const scriptItems = scriptsRes.data.items.map((s: any) => ({
+        id: `script-${s.id}`,
+        original_id: s.id,
+        type: "script",
+        title: `Script: ${s.product.name}`,
+        details: s.hook,
+        creator: s.user?.full_name || "AI System",
+        status: s.status,
+        created_at: s.created_at,
+      }));
 
-      const jobItems: ApprovalItem[] = jobsRes.data.items.map((j: any) => ({
+      const jobItems = jobsRes.data.items.map((j: any) => ({
         id: `job-${j.id}`,
         original_id: j.id,
         type: "video_job",
@@ -72,7 +75,11 @@ export default function ApprovalsPage() {
         output_path: j.output_path,
       }));
 
-      setItems([...scriptItems, ...jobItems]);
+      const allItems = [...scriptItems, ...jobItems].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      
+      setItems(allItems as ApprovalItem[]);
     } catch (error) {
       console.error("Failed to fetch approvals", error);
     } finally {
@@ -247,32 +254,46 @@ export default function ApprovalsPage() {
                   </div>
                 </div>
 
-                <div className="p-6 bg-slate-900/30 border-t md:border-t-0 md:border-l border-slate-800 flex flex-row md:flex-col justify-center gap-3 min-w-[200px]">
-                  <button
-                    disabled={actioning === item.id}
-                    onClick={() => handleAction(item, "approve")}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white dark-transition border border-emerald-500/20 font-bold py-2.5 rounded-xl text-sm"
-                  >
-                    {actioning === item.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ThumbsUp className="w-4 h-4" />
-                    )}
-                    Approve
-                  </button>
-                  <button
-                    disabled={actioning === item.id}
-                    onClick={() => handleAction(item, "reject")}
-                    className="flex-1 flex items-center justify-center gap-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white dark-transition border border-red-500/20 font-bold py-2.5 rounded-xl text-sm"
-                  >
-                    {actioning === item.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ThumbsDown className="w-4 h-4" />
-                    )}
-                    Reject
-                  </button>
-                </div>
+                {activeTab === "pending" && (
+                  <div className="p-6 bg-slate-900/30 border-t md:border-t-0 md:border-l border-slate-800 flex flex-row md:flex-col justify-center gap-3 min-w-[200px]">
+                    <button
+                      disabled={actioning === item.id}
+                      onClick={() => handleAction(item, "approve")}
+                      className="flex-1 flex items-center justify-center gap-2 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white dark-transition border border-emerald-500/20 font-bold py-2.5 rounded-xl text-sm"
+                    >
+                      {actioning === item.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ThumbsUp className="w-4 h-4" />
+                      )}
+                      Approve
+                    </button>
+                    <button
+                      disabled={actioning === item.id}
+                      onClick={() => handleAction(item, "reject")}
+                      className="flex-1 flex items-center justify-center gap-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white dark-transition border border-red-500/20 font-bold py-2.5 rounded-xl text-sm"
+                    >
+                      {actioning === item.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ThumbsDown className="w-4 h-4" />
+                      )}
+                      Reject
+                    </button>
+                  </div>
+                )}
+                {activeTab === "history" && (
+                  <div className="p-6 bg-slate-900/30 border-t md:border-t-0 md:border-l border-slate-800 flex flex-col justify-center items-center min-w-[200px]">
+                    <div className={cn(
+                      "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border",
+                      item.status === "approved" 
+                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        : "bg-red-500/10 text-red-500 border-red-500/20"
+                    )}>
+                      {item.status}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>

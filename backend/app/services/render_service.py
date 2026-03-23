@@ -21,12 +21,11 @@ logger = logging.getLogger(__name__)
 
 ALLOWED_TRANSITIONS = {
     "queued": ["processing", "cancelled", "failed"],
-    "processing": ["rendered", "needs_review", "failed", "cancelled"],
-    "rendered": ["needs_review", "failed"],
+    "processing": ["needs_review", "failed", "cancelled"],
     "needs_review": ["approved", "rejected", "failed"],
-    "approved": ["published", "failed"],
-    "rejected": ["queued"],  # Only retry/re-queue is allowed
-    "failed": ["queued"],    # Only retry/re-queue is allowed
+    "approved": ["published"], # Published might be a final state
+    "rejected": ["queued"],
+    "failed": ["queued"],
     "cancelled": ["queued"],
     "published": [],
 }
@@ -115,7 +114,7 @@ async def update_job_status(
     error_message: Optional[str] = None,
     duration_seconds: Optional[int] = None,
 ) -> Optional[VideoJob]:
-    """Update a job's status and related fields with validation."""
+    """Update a job's status and related fields with validation and retry resets."""
     job = await get_video_job(db, job_id)
     if not job:
         return None
@@ -123,11 +122,20 @@ async def update_job_status(
     # Validate transition
     validate_status_transition(job.status, status)
 
+    # If retrying (moving to queued from a terminal state), reset fields
+    if status == "queued" and job.status in ("failed", "rejected", "cancelled"):
+        job.started_at = None
+        job.completed_at = None
+        job.error_message = None
+        job.output_path = None
+        job.retry_count += 1
+        logger.info(f"Job {job_id} reset for retry. Count: {job.retry_count}")
+
     job.status = status
 
     if status == "processing":
         job.started_at = datetime.now(timezone.utc)
-    elif status in ("rendered", "needs_review", "failed", "cancelled"):
+    elif status in ("needs_review", "failed", "cancelled", "approved"):
         job.completed_at = datetime.now(timezone.utc)
 
     if output_path:

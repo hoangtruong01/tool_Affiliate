@@ -81,7 +81,7 @@ async def retry_job_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    """Retry a failed or rejected render job."""
+    """Retry a failed, rejected, or cancelled render job."""
     from app.services.render_service import update_job_status
     
     try:
@@ -89,12 +89,12 @@ async def retry_job_endpoint(
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
         
-        job.retry_count += 1
-        job.error_message = None
-        await db.flush()
-
         render_video_task.delay(str(job.id))
-        return {"message": "Job retry queued", "job_id": str(job.id)}
+        return {
+            "message": "Job retry queued", 
+            "job_id": str(job.id),
+            "retry_count": job.retry_count
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
