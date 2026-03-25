@@ -63,7 +63,8 @@ async def test_transitions():
         await expect_ok(db, j1.id, "approved",       "needs_review → approved")
 
         # ── Cannot re-approve or go backwards from approved ──
-        print("\n[2] Cannot go backwards from approved")
+        print("\n[2] Cannot double-approve or go backwards")
+        await expect_fail(db, j1.id, "approved", "approved → approved (should fail, no longer a no-op)")
         await expect_fail(db, j1.id, "needs_review", "approved → needs_review")
 
         # ── Cannot retry an approved job ──

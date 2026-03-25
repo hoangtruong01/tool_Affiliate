@@ -29,6 +29,7 @@ interface VideoJob {
   duration_seconds?: number;
   error_message?: string;
   created_at: string;
+  retry_count: number;
 }
 
 interface Asset {
@@ -41,6 +42,8 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [searchFilter, setSearchFilter] = useState<string>("");
 
   // Create Job State
   const [scripts, setScripts] = useState<any[]>([]);
@@ -51,8 +54,13 @@ export default function JobsPage() {
   const [previewJob, setPreviewJob] = useState<VideoJob | null>(null);
 
   const fetchJobs = async () => {
+    setLoading(true);
     try {
-      const response = await api.get("/jobs/");
+      const params: any = {};
+      if (statusFilter) params.status = statusFilter;
+      if (searchFilter) params.search = searchFilter;
+      
+      const response = await api.get("/jobs/", { params });
       setJobs(response.data.items);
     } catch (error) {
       console.error("Failed to fetch jobs", error);
@@ -77,7 +85,7 @@ export default function JobsPage() {
   useEffect(() => {
     fetchJobs();
     fetchData();
-  }, []);
+  }, [statusFilter, searchFilter]);
 
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,19 +149,42 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Video Jobs</h1>
           <p className="text-slate-400">
             Track and manage your automated video rendering pipeline.
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-600/20"
-        >
-          <Plus className="w-5 h-5" /> New Render Job
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="Search script hook..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5"
+          >
+            <option value="">All Statuses</option>
+            <option value="queued">Queued</option>
+            <option value="processing">Processing</option>
+            <option value="needs_review">Needs Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-600/20 whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" /> New Render Job
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -210,28 +241,35 @@ export default function JobsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(job.status)}
-                        <span
-                          className={cn(
-                            "text-xs font-bold capitalize",
-                            job.status === "needs_review" || job.status === "approved"
-                              ? "text-emerald-500"
-                              : job.status === "failed" || job.status === "rejected"
-                                ? "text-red-500"
-                                : job.status === "processing"
-                                  ? "text-blue-500"
-                                  : "text-slate-500",
-                          )}
-                        >
-                          {job.status}
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(job.status)}
+                          <span
+                            className={cn(
+                              "text-xs font-bold capitalize",
+                              job.status === "needs_review" || job.status === "approved"
+                                ? "text-emerald-500"
+                                : job.status === "failed" || job.status === "rejected"
+                                  ? "text-red-500"
+                                  : job.status === "processing"
+                                    ? "text-blue-500"
+                                    : "text-slate-500",
+                            )}
+                          >
+                            {job.status}
+                          </span>
+                        </div>
+                        {job.retry_count > 0 && (
+                          <p className="text-[10px] text-slate-500">
+                            Retries: {job.retry_count}
+                          </p>
+                        )}
+                        {job.error_message && (
+                          <p className="text-[10px] text-red-400 mt-1 max-w-[150px] truncate" title={job.error_message}>
+                            {job.error_message}
+                          </p>
+                        )}
                       </div>
-                      {job.error_message && (
-                        <p className="text-[10px] text-red-400 mt-1 max-w-[150px] truncate" title={job.error_message}>
-                          {job.error_message}
-                        </p>
-                      )}
                     </td>
                     <td className="px-6 py-4 text-slate-400 text-xs">
                       {formatDate(job.created_at)}
@@ -247,9 +285,9 @@ export default function JobsPage() {
                             <PlayCircle className="w-4 h-4" />
                           </button>
                         )}
-                        {(job.status === "needs_review" || job.status === "approved") && job.output_path && (
+                        {(job.status === "needs_review" || job.status === "approved" || job.status === "published") && job.output_path && (
                           <a 
-                            href={job.output_path}
+                            href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/jobs/${job.id}/download`}
                             download
                             className="p-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-600/20" title="Download">
                             <Download className="w-4 h-4" />
@@ -364,14 +402,19 @@ export default function JobsPage() {
                         key={a.id}
                         onClick={() => toggleAsset(a.id)}
                         className={cn(
-                          "aspect-square rounded-xl border cursor-pointer overflow-hidden relative transition-all",
+                          "aspect-square rounded-xl border cursor-pointer overflow-hidden relative transition-all group",
                           selectedAssets.includes(a.id)
                             ? "ring-2 ring-blue-500 border-transparent shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                             : "bg-slate-900 border-slate-800",
                         )}
                       >
-                        <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600">
-                          <ImageIcon className="w-8 h-8" />
+                        <img 
+                          src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/assets/${a.id}/preview`}
+                          alt={a.filename}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                          <span className="text-[10px] text-white truncate w-full">{a.filename}</span>
                         </div>
                         {selectedAssets.includes(a.id) && (
                           <div className="absolute top-1 right-1 bg-blue-600 rounded-full p-0.5">
@@ -434,7 +477,7 @@ export default function JobsPage() {
 
               {previewJob.output_path ? (
                 <video 
-                  src={previewJob.output_path}
+                  src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/jobs/${previewJob.id}/preview`}
                   controls
                   autoPlay
                   className="w-full h-full object-contain bg-black"

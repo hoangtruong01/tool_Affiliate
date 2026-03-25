@@ -43,7 +43,7 @@ async def dashboard_stats(
 
     # Job status breakdown
     job_stats = {}
-    for s in ["queued", "processing", "rendered", "failed", "approved", "published"]:
+    for s in ["queued", "processing", "needs_review", "approved", "rejected", "failed", "cancelled", "published"]:
         count = (await db.execute(
             select(func.count()).select_from(VideoJob).where(VideoJob.status == s)
         )).scalar() or 0
@@ -55,7 +55,7 @@ async def dashboard_stats(
     )).scalar() or 0
 
     pending_jobs = (await db.execute(
-        select(func.count()).select_from(VideoJob).where(VideoJob.status == "rendered")
+        select(func.count()).select_from(VideoJob).where(VideoJob.status == "needs_review")
     )).scalar() or 0
 
     return {

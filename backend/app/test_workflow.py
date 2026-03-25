@@ -209,7 +209,7 @@ def run():
                 time.sleep(1)
                 code, job = api_call("GET", f"/jobs/{job_id}", token)
                 final_status = job.get("status")
-                if final_status in ("needs_review", "rendered", "failed"):
+                if final_status in ("needs_review", "failed"):
                     break
 
             print(f"  ✓ Final status: {final_status}")
@@ -218,7 +218,7 @@ def run():
             if job.get("error_message"):
                 print(f"  ⚠ Error: {job['error_message']}")
 
-            results["render"] = "PASS" if final_status == "needs_review" else ("PARTIAL" if final_status == "rendered" else "FAIL")
+            results["render"] = "PASS" if final_status == "needs_review" else "FAIL"
 
             # ── Step 8: Review Action ──
             if final_status == "needs_review":

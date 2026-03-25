@@ -5,11 +5,15 @@ import uuid
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, status
+from fastapi.responses import FileResponse
+import os
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
+from app.models.asset import Asset
 from app.schemas.asset import AssetResponse, AssetListResponse
 from app.services.asset_service import upload_asset, list_assets, delete_asset
 
@@ -64,3 +68,18 @@ async def delete_asset_endpoint(
     success = await delete_asset(db, asset_id)
     if not success:
         raise HTTPException(status_code=404, detail="Asset not found")
+
+
+@router.get("/{asset_id}/preview", response_class=FileResponse)
+async def preview_asset_endpoint(
+    asset_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Stream/preview an asset file."""
+    result = await db.execute(select(Asset).where(Asset.id == asset_id))
+    asset = result.scalar_one_or_none()
+    
+    if not asset or not asset.file_path or not os.path.exists(asset.file_path):
+        raise HTTPException(status_code=404, detail="Asset not found")
+        
+    return FileResponse(asset.file_path, media_type=asset.mime_type or "application/octet-stream")

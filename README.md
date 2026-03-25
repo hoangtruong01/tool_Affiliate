@@ -2,162 +2,135 @@
 
 AI-powered platform for creating affiliate marketing videos at scale.
 
-**Stack**: Next.js · FastAPI · PostgreSQL · Redis · n8n · FFmpeg · Celery
+**Stack**: Next.js · FastAPI · PostgreSQL · Redis · Celery · FFmpeg
 
 ---
 
-## 🚀 Quick Start (Local)
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Docker Desktop (v4.0+)
 - Git
 
 ### 1. Clone & Configure
-
 ```bash
 cd D:\tiktok\tool
 cp .env.example .env
-# Edit .env with your API keys (OPENAI_API_KEY, etc.)
+# Edit .env: set OPENAI_API_KEY (or leave default for mock mode)
 ```
 
-### 2. Create Media Directories
-
+### 2. Start Services
 ```bash
-mkdir -p media/uploads media/renders
+docker compose up --build -d
 ```
 
-### 3. Start All Services
-
+### 3. Run Database Migrations
 ```bash
-docker-compose up --build
+docker compose exec api alembic upgrade head
 ```
 
-### 4. Run Database Migrations
-
+### 4. Seed Demo Data
 ```bash
-docker-compose exec api alembic upgrade head
+docker compose exec api python -m app.seed_data
 ```
 
-### 5. Access Services
+### 5. Access
+| Service            | URL                         |
+|--------------------|-----------------------------|
+| Backend API (Docs) | http://localhost:8000/docs   |
+| Frontend Dashboard | http://localhost:3000        |
 
-| Service               | URL                        |
-| --------------------- | -------------------------- |
-| Frontend Dashboard    | http://localhost:3000      |
-| Backend API (Swagger) | http://localhost:8000/docs |
-| n8n Workflows         | http://localhost:5678      |
-
-### 5. Seed Demo Data (Optional)
-
-```bash
-docker-compose exec api python -m app.seed_data
-```
-
-### 6. Default Admin Login
-
-- Email: `admin@example.com`
-- Password: `admin123` (or set via `FIRST_ADMIN_PASSWORD` in `.env`)
+### 6. Login
+- **Email**: `admin@example.com`
+- **Password**: `admin123`
 
 ---
 
-## Phase C: Stable Review Workflow
+## 📋 Phase C: Job Lifecycle & Review Workflow
 
-Phase C introduces strict status transitions and centralized job management.
+### Status Machine
+```
+queued → processing → needs_review → approved
+                  ↘ failed           ↘ rejected
+                  ↘ cancelled
+```
 
-### Workflow
-1.  **Creation**: Jobs start as `queued`.
-2.  **Processing**: Worker picks up job -> `processing`.
-3.  **Review**: Render finishes -> `needs_review`.
-4.  **Decision**: Admin/Reviewer `approves` or `rejects`.
-    - `approved` -> Final state (ready for publish).
-    - `rejected` -> Can be `retried` (back to `queued`).
-5.  **Failure/Cancel**: 
-    - `failed` or `cancelled` jobs can be `retried`.
+**Allowed transitions:**
+| From           | To                                    |
+|----------------|---------------------------------------|
+| `queued`       | `processing`, `cancelled`, `failed`   |
+| `processing`   | `needs_review`, `failed`, `cancelled` |
+| `needs_review` | `approved`, `rejected`, `failed`      |
+| `approved`     | `published`                           |
+| `rejected`     | `queued` (via retry)                  |
+| `failed`       | `queued` (via retry)                  |
+| `cancelled`    | `queued` (via retry)                  |
 
-### Local Setup & Verification
-1.  **Seed Data**: Run `python backend/app/seed_data.py` to create a demo environment.
-2.  **Running Tests**: `pytest backend/app/test_transitions.py` to verify state machine.
-3.  **Manual Check**:
-    - [ ] Navigate to `/approvals` to see pending jobs.
-    - [ ] Click `Approve` or `Reject` and check `Approval History` tab.
-    - [ ] In `/jobs`, verify `Retry` button appears for failed/rejected/cancelled.
-    - [ ] Verify `Cancel` button appears for queued/processing.
-- **Strict Job Lifecycle**: Centralized status transitions (`queued` -> `processing` -> `rendered` -> `needs_review` -> `approved/rejected`).
-- **Control Operations**: `/cancel` and `/retry` endpoints with state-dependent validation.
-- **Enhanced Review Flow**: Approval decisions (Approve/Reject) with RBAC enforcement and reviewer metadata persistence.
-- **Frontend Dashboard**: Fully functional Jobs page and Approval Queue with video preview and conditional actions.
+### API Operations
+| Endpoint                       | Who            | When                       |
+|--------------------------------|----------------|----------------------------|
+| `POST /jobs/{id}/approve`      | admin/reviewer | Status is `needs_review`   |
+| `POST /jobs/{id}/cancel`       | admin/reviewer | Status is `queued`/`processing` |
+| `POST /jobs/{id}/retry`        | any user       | Status is `failed`/`rejected`/`cancelled` |
 
-1. Run `python backend/app/seed_data.py` to populate the database.
-2. Access the frontend at `http://localhost:3000`.
-3. Try the manual verification checklist below.
+### Operator Guide
 
-### Manual Verification Checklist
-- [ ] **Job Transitions**: Attempt to approve a `processing` job via API (should fail).
-- [ ] **Approval Flow**: Go to `/approvals`, preview the video, add a comment, and approve.
-- [ ] **Cancel/Retry**: Cancel a `queued` job, then retry it.
-- [ ] **RBAC**: Verify only `admin` and `reviewer` can perform approval actions.
-- [ ] **Error Handling**: Find a `failed` job and verify the `error_message` is displayed in the Jobs page.
+**Daily workflow:**
+1. Seed or create products → AI analysis → script generation → render job.
+2. Jobs auto-transition: `queued` → `processing` → `needs_review`.
+3. Go to `/approvals` → preview video → approve or reject.
+4. Rejected jobs can be retried from `/jobs`.
+5. Failed jobs show `error_message` for debugging.
+
+**Running tests:**
+```bash
+docker compose exec api python -m app.test_transitions   # Status machine tests
+docker compose exec api python -m app.test_workflow       # E2E workflow test
+```
+
+### Known Limitations
+- `rendered` status still exists in the DB enum but is unused (kept for backward compat).
+- Double-approve is a no-op (same-state returns silently).
+- Publishing endpoints (`/publish/tiktok`, `/publish/shopee`) are stubbed.
+- Frontend requires the frontend Docker container or `npm run dev` separately.
+- n8n integration is disabled for MVP.
 
 ---
 
 ## 📁 Project Structure
-
 ```
-├── docker-compose.yml      # All services orchestration
-├── .env.example             # Environment template
-├── backend/                 # FastAPI + Celery
+├── docker-compose.yml
+├── .env.example
+├── backend/
 │   ├── app/
 │   │   ├── api/v1/          # REST endpoints
 │   │   ├── models/          # SQLAlchemy models
 │   │   ├── schemas/         # Pydantic schemas
 │   │   ├── services/        # Business logic
 │   │   ├── tasks/           # Celery tasks
-│   │   └── utils/           # Helpers (JWT, FFmpeg)
+│   │   └── utils/           # JWT, FFmpeg, security
 │   └── alembic/             # DB migrations
 ├── frontend/                # Next.js dashboard
-│   └── src/
-│       ├── app/             # Pages (App Router)
-│       ├── components/      # React components
-│       ├── lib/             # API client, auth
-│       └── types/           # TypeScript types
+│   └── src/app/             # Pages (App Router)
 └── media/                   # Uploads & renders
 ```
 
----
-
 ## 🛠 Development
 
-### Backend Only
-
 ```bash
-docker-compose up postgres redis api worker
-```
+# Backend only
+docker compose up postgres redis api worker
 
-### Frontend Only (requires API running)
-
-```bash
+# Frontend dev (requires API running)
 cd frontend && npm run dev
+
+# View worker logs
+docker compose logs -f worker
 ```
 
-### View Celery Logs
-
-```bash
-docker-compose logs -f worker
-```
-
-### Create New Migration
-
-```bash
-docker-compose exec api alembic revision --autogenerate -m "description"
-```
-
----
-
-## 📋 Architecture
-
+## 📐 Architecture
 - **Frontend**: Next.js 14 App Router, dark-mode dashboard
 - **Backend**: FastAPI with async SQLAlchemy, JWT auth, RBAC
 - **Queue**: Celery + Redis for AI tasks & video rendering
 - **Database**: PostgreSQL 16 with Alembic migrations
 - **Media**: FFmpeg for video processing
-- **Automation**: n8n for approval workflows & scheduling

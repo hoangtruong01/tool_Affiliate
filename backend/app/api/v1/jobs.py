@@ -2,9 +2,12 @@
 Video Job endpoints — create, list, retry, approve/reject.
 """
 import uuid
-from typing import Annotated, Optional
+from datetime import datetime
+from typing import Annotated, Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
+import os
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -33,11 +36,15 @@ async def list_jobs_endpoint(
     current_user: Annotated[User, Depends(get_current_user)],
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    status_filter: Optional[str] = Query(None, alias="status"),
+    status: Optional[List[str]] = Query(None),
+    product_id: Optional[uuid.UUID] = Query(None),
+    created_after: Optional[datetime] = Query(None),
+    search: Optional[str] = Query(None),
 ):
-    """List video jobs with pagination."""
+    """List video jobs with pagination and filtering."""
     items, total = await list_video_jobs(
-        db, page=page, page_size=page_size, status=status_filter,
+        db, page=page, page_size=page_size, status=status,
+        product_id=product_id, created_after=created_after, search=search
     )
     return VideoJobListResponse(
         items=[VideoJobResponse.model_validate(j) for j in items],
@@ -132,3 +139,33 @@ async def approve_job_endpoint(
         return {"message": f"Job {approval.decision}", "approval_id": str(approval.id)}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{job_id}/preview", response_class=FileResponse)
+async def preview_job_endpoint(
+    job_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Stream the output video file for preview."""
+    job = await get_video_job(db, job_id)
+    if not job or not job.output_path or not os.path.exists(job.output_path):
+        raise HTTPException(status_code=404, detail="Video not found or not ready")
+    return FileResponse(job.output_path, media_type="video/mp4")
+
+
+@router.get("/{job_id}/download", response_class=FileResponse)
+async def download_job_endpoint(
+    job_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Download the output video file."""
+    job = await get_video_job(db, job_id)
+    if not job or not job.output_path or not os.path.exists(job.output_path):
+        raise HTTPException(status_code=404, detail="Video not found or not ready")
+    
+    filename = os.path.basename(job.output_path)
+    return FileResponse(
+        job.output_path, 
+        media_type="video/mp4",
+        filename=filename
+    )

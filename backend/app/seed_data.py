@@ -37,7 +37,8 @@ async def seed_data():
             print(f"Created admin user: {admin_email}")
         else:
             admin.hashed_password = hash_password("admin123")
-            print(f"Updated admin password for: {admin_email}")
+            admin.role = "admin"
+            print(f"Updated admin user: {admin_email} (role → admin)")
         
         # 2. Create Demo Product
         product_name = "Cool AI Gadget"

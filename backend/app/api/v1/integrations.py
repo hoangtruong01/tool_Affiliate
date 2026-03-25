@@ -17,11 +17,11 @@ async def publish_tiktok(
     current_user = Depends(deps.get_current_user)
 ):
     """
-    Publish a rendered video to TikTok.
+    Publish an approved video to TikTok.
     """
     job = await get_video_job(db, job_id)
-    if not job or job.status != 'rendered':
-        raise HTTPException(status_code=400, detail="Video job not ready or not found")
+    if not job or job.status != 'approved':
+        raise HTTPException(status_code=400, detail="Video job not approved or not found")
     
     # In real app, we'd fetch the caption from script.captions
     caption = job.script.captions[0].caption_text if job.script and job.script.captions else "Check this out!"
@@ -41,11 +41,11 @@ async def publish_shopee(
     current_user = Depends(deps.get_current_user)
 ):
     """
-    Publish a rendered video to Shopee.
+    Publish an approved video to Shopee.
     """
     job = await get_video_job(db, job_id)
-    if not job or job.status != 'rendered':
-        raise HTTPException(status_code=400, detail="Video job not ready or not found")
+    if not job or job.status != 'approved':
+        raise HTTPException(status_code=400, detail="Video job not approved or not found")
     
     result = await platform_service.publish_to_shopee(
         video_path=job.output_path,

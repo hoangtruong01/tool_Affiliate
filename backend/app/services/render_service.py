@@ -32,9 +32,7 @@ ALLOWED_TRANSITIONS = {
 
 
 def validate_status_transition(current: str, target: str):
-    """Ensure a status transition is legally allowed."""
-    if current == target:
-        return
+    """Ensure a status transition is legally allowed (rejects same-state if not explicitly allowed)."""
     allowed = ALLOWED_TRANSITIONS.get(current, [])
     if target not in allowed:
         raise ValueError(f"Invalid transition from {current} to {target}")
@@ -87,13 +85,34 @@ async def list_video_jobs(
     db: AsyncSession,
     page: int = 1,
     page_size: int = 20,
-    status: Optional[str] = None,
+    status: Optional[str | list[str]] = None,
+    product_id: Optional[uuid.UUID] = None,
+    created_after: Optional[datetime] = None,
+    search: Optional[str] = None,
 ) -> tuple[list[VideoJob], int]:
-    """List video jobs with pagination."""
+    """List video jobs with pagination and filters."""
     query = select(VideoJob)
+    
+    if product_id or search:
+        from app.models.script import Script
+        query = query.join(Script, VideoJob.script_id == Script.id)
 
     if status:
-        query = query.where(VideoJob.status == status)
+        if isinstance(status, list):
+            query = query.where(VideoJob.status.in_(status))
+        else:
+            query = query.where(VideoJob.status == status)
+            
+    if product_id:
+        from app.models.script import Script
+        query = query.where(Script.product_id == product_id)
+        
+    if search:
+        from app.models.script import Script
+        query = query.where(Script.hook.ilike(f"%{search}%"))
+        
+    if created_after:
+        query = query.where(VideoJob.created_at >= created_after)
 
     count_query = select(sql_func.count()).select_from(query.subquery())
     total_result = await db.execute(count_query)

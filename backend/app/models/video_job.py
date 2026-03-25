@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 JobStatus = ENUM(
-    "queued", "processing", "rendered", "needs_review", "failed",
+    "queued", "processing", "needs_review", "failed",
     "approved", "rejected", "published", "cancelled",
     name="job_status", create_type=True,
 )
