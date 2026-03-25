@@ -79,10 +79,16 @@ def render_video_task(self, job_id: str):
                     config=config
                 )
 
-                # Execute FFmpeg
-                logger.info(f"Executing FFmpeg command for job {job_id}")
-                success, message = run_ffmpeg(cmd)
-                logger.info(f"FFmpeg finished for job {job_id}: success={success}")
+                if settings.MOCK_RENDER_PROVIDER:
+                    logger.info(f"MOCK MODE: Skipping FFmpeg. Creating stub output {output_path}")
+                    with open(output_path, "wb") as f:
+                        f.write(b"mock video format bytes")
+                    success, message = True, "Mock render success"
+                else:
+                    # Execute FFmpeg
+                    logger.info(f"Executing FFmpeg command for job {job_id}")
+                    success, message = run_ffmpeg(cmd)
+                    logger.info(f"FFmpeg finished for job {job_id}: success={success}")
 
                 if success:
                     await render_service.update_job_status(

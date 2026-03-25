@@ -82,6 +82,16 @@ queued → processing → needs_review → approved
 4. Rejected jobs can be retried from `/jobs`.
 5. Failed jobs show `error_message` for debugging.
 
+**Runtime Configuration (Mock vs Real):**
+To develop locally without incurring API or CPU costs, configure your `.env` or `config.py`:
+- `MOCK_AI_SERVICES=True`: Returns standardized JSON without querying OpenAI.
+- `MOCK_RENDER_PROVIDER=True`: Skips FFmpeg and creates a stub .mp4 for pipeline testing.
+
+**Daily Automation Setup:**
+The `beat` Docker service runs a Celery Beat scheduler.
+- **Action**: Picks an active product daily (9:00 AM UTC) and triggers a casual TikTok script generation task for the operator.
+- **Logs**: Follow with `docker compose logs -f beat`.
+
 **Running tests:**
 ```bash
 docker compose exec api python -m app.test_transitions   # Status machine tests

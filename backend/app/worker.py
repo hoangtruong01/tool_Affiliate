@@ -3,6 +3,7 @@ Celery worker entry point.
 """
 import os
 from celery import Celery
+from celery.schedules import crontab
 from app.config import settings
 
 # Initialize Celery app
@@ -28,7 +29,16 @@ celery_app.conf.update(
 celery_app.conf.include = [
     "app.tasks.ai_tasks",
     "app.tasks.render_tasks",
+    "app.tasks.automation_tasks",
 ]
+
+# Periodic tasks (Celery Beat)
+celery_app.conf.beat_schedule = {
+    "daily_content_generation": {
+        "task": "app.tasks.automation_tasks.daily_content_generation",
+        "schedule": crontab(hour=9, minute=0),  # Run daily at 9:00 AM UTC
+    },
+}
 
 # Define task queues to isolate CPU-intensive renders from I/O-bound AI calls
 celery_app.conf.task_routes = {

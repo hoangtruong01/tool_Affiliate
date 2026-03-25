@@ -36,6 +36,8 @@ class Settings(BaseSettings):
 
     # ── App ──
     APP_ENV: str = "development"
+    MOCK_AI_SERVICES: bool = True
+    MOCK_RENDER_PROVIDER: bool = True
     BACKEND_URL: str = "http://api:8000"
     FRONTEND_URL: str = "http://localhost:3000"
     MEDIA_DIR: str = "/app/media"

@@ -22,7 +22,7 @@ class OpenAIProvider:
 
     async def generate_text(self, prompt: str, system_prompt: str) -> str:
         """Generate text using OpenAI chat completions."""
-        if self.client.api_key == "sk-your-openai-key":
+        if settings.MOCK_AI_SERVICES or self.client.api_key == "sk-your-openai-key" or not self.client.api_key:
             logger.info("Using mocked OpenAI response for test environment.")
             
             # If prompt looks like product analysis
