@@ -91,11 +91,18 @@ def render_video_task(self, job_id: str):
                     logger.info(f"FFmpeg finished for job {job_id}: success={success}")
 
                 if success:
-                    await render_service.update_job_status(
-                        db, job.id, "needs_review", 
-                        output_path=output_path,
-                        duration_seconds=config.duration
-                    )
+                    if not settings.MOCK_RENDER_PROVIDER and (not os.path.exists(output_path) or os.path.getsize(output_path) == 0):
+                        logger.error(f"FFmpeg reported success but output file {output_path} is missing or empty.")
+                        await render_service.update_job_status(
+                            db, job.id, "failed", 
+                            error_message="Render error: Output file missing or empty despite command success."
+                        )
+                    else:
+                        await render_service.update_job_status(
+                            db, job.id, "needs_review", 
+                            output_path=output_path,
+                            duration_seconds=config.duration
+                        )
                 else:
                     await render_service.update_job_status(
                         db, job.id, "failed", 

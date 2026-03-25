@@ -18,6 +18,7 @@ from app.schemas.video_job import (
     VideoJobResponse,
     VideoJobListResponse,
     ApprovalRequest,
+    VideoJobPublishUpdate,
 )
 from app.services.render_service import (
     create_video_job,
@@ -139,6 +140,38 @@ async def approve_job_endpoint(
         return {"message": f"Job {approval.decision}", "approval_id": str(approval.id)}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.patch("/{job_id}/publish", response_model=VideoJobResponse)
+async def publish_job_endpoint(
+    job_id: uuid.UUID,
+    data: VideoJobPublishUpdate,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """Mark a video as published or update its performance feedback."""
+    job = await get_video_job(db, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.status not in ("approved", "published"):
+        raise HTTPException(status_code=400, detail="Only approved or already published jobs can be tracked.")
+
+    if job.status == "approved":
+        job.status = "published"
+        job.posted_at = datetime.now()
+        job.platform = "manual" # Default until real API is implemented
+        
+    if data.post_url is not None:
+        job.post_url = data.post_url
+    if data.performance_notes is not None:
+        job.performance_notes = data.performance_notes
+    if data.is_successful is not None:
+        job.is_successful = data.is_successful
+
+    await db.commit()
+    await db.refresh(job)
+    return VideoJobResponse.model_validate(job)
 
 
 @router.get("/{job_id}/preview", response_class=FileResponse)

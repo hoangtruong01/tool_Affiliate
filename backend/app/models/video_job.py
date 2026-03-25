@@ -4,7 +4,7 @@ VideoJob & VideoJobAsset models — render job orchestration.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, Text, Integer, DateTime, ForeignKey, func
+from sqlalchemy import String, Text, Integer, DateTime, ForeignKey, func, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,6 +37,13 @@ class VideoJob(Base):
     duration_seconds: Mapped[int | None] = mapped_column(Integer)
     error_message: Mapped[str | None] = mapped_column(Text)
     retry_count: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Publish metadata (Phase E)
+    posted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    platform: Mapped[str | None] = mapped_column(String(50))
+    post_url: Mapped[str | None] = mapped_column(String(512))
+    performance_notes: Mapped[str | None] = mapped_column(Text)
+    is_successful: Mapped[bool | None] = mapped_column(Boolean)
 
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

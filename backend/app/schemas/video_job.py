@@ -22,6 +22,13 @@ class VideoJobCreate(BaseModel):
     assets: List[JobAssetInput] = []
 
 
+class VideoJobPublishUpdate(BaseModel):
+    """Update a job with publish metadata and feedback."""
+    post_url: Optional[str] = None
+    performance_notes: Optional[str] = None
+    is_successful: Optional[bool] = None
+
+
 class VideoJobResponse(BaseModel):
     """Video job data in API responses."""
     id: uuid.UUID
@@ -33,6 +40,11 @@ class VideoJobResponse(BaseModel):
     duration_seconds: Optional[int] = None
     error_message: Optional[str] = None
     retry_count: int
+    posted_at: Optional[datetime] = None
+    platform: Optional[str] = None
+    post_url: Optional[str] = None
+    performance_notes: Optional[str] = None
+    is_successful: Optional[bool] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     created_at: datetime

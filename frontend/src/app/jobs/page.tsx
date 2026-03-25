@@ -16,9 +16,12 @@ import {
   Image as ImageIcon,
   ChevronRight,
   Settings2,
+  History,
+  Share2,
 } from "lucide-react";
 import api from "@/lib/api";
 import { cn, formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 
 interface VideoJob {
   id: string;
@@ -30,6 +33,9 @@ interface VideoJob {
   error_message?: string;
   created_at: string;
   retry_count: number;
+  post_url?: string;
+  performance_notes?: string;
+  is_successful?: boolean | null;
 }
 
 interface Asset {
@@ -52,6 +58,15 @@ export default function JobsPage() {
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [previewJob, setPreviewJob] = useState<VideoJob | null>(null);
+  const { success, error } = useToast();
+  const [expandedJob, setExpandedJob] = useState<string | null>(null);
+
+  const [trackingJobId, setTrackingJobId] = useState<string | null>(null);
+  const [trackingData, setTrackingData] = useState<{ post_url: string; performance_notes: string; is_successful: boolean | null }>({
+    post_url: "",
+    performance_notes: "",
+    is_successful: null,
+  });
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -99,10 +114,26 @@ export default function JobsPage() {
       setIsModalOpen(false);
       setSelectedScript("");
       setSelectedAssets([]);
-    } catch (error) {
-      console.error("Create failed", error);
+      success("Video render job queued successfully");
+    } catch (err: any) {
+      console.error("Create failed", err);
+      error(err?.response?.data?.detail || "Failed to create render job");
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleUpdateTracking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!trackingJobId) return;
+    try {
+      await api.patch(`/jobs/${trackingJobId}/publish`, trackingData);
+      success("Publish tracking updated!");
+      setTrackingJobId(null);
+      fetchJobs();
+    } catch (err: any) {
+      console.error("Track failed", err);
+      error(err?.response?.data?.detail || "Failed to update tracking info");
     }
   };
 
@@ -132,18 +163,22 @@ export default function JobsPage() {
   const handleRetry = async (jobId: string) => {
     try {
       await api.post(`/jobs/${jobId}/retry`);
+      success("Job retry queued");
       fetchJobs();
-    } catch (error) {
-      console.error("Retry failed", error);
+    } catch (err: any) {
+      console.error("Retry failed", err);
+      error(err?.response?.data?.detail || "Failed to retry job");
     }
   };
 
   const handleCancel = async (jobId: string) => {
     try {
       await api.post(`/jobs/${jobId}/cancel`);
+      success("Job cancelled");
       fetchJobs();
-    } catch (error) {
-      console.error("Cancel failed", error);
+    } catch (err: any) {
+      console.error("Cancel failed", err);
+      error(err?.response?.data?.detail || "Failed to cancel job");
     }
   };
 
@@ -187,6 +222,23 @@ export default function JobsPage() {
         </div>
       </div>
 
+      {/* Today's Activity Summary Box */}
+      {!loading && jobs.length > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: "Needs Review", value: jobs.filter(j => j.status === "needs_review").length, color: "text-blue-400" },
+            { label: "Processing / Queued", value: jobs.filter(j => j.status === "queued" || j.status === "processing").length, color: "text-amber-400" },
+            { label: "Approved (All time)", value: jobs.filter(j => j.status === "approved" || j.status === "published").length, color: "text-emerald-400" },
+            { label: "Needs Attention (Failed)", value: jobs.filter(j => j.status === "failed" || j.status === "rejected" || j.status === "cancelled").length, color: "text-red-400" },
+          ].map((stat, i) => (
+            <div key={i} className="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-center">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{stat.label}</span>
+              <span className={cn("text-3xl font-black mt-2", stat.color)}>{stat.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="space-y-4 animate-pulse">
           {[1, 2, 3].map((i) => (
@@ -226,8 +278,8 @@ export default function JobsPage() {
               </thead>
               <tbody className="divide-y divide-slate-800/50">
                 {jobs.map((job) => (
+                  <React.Fragment key={job.id}>
                   <tr
-                    key={job.id}
                     className="hover:bg-slate-900/40 transition-colors group"
                   >
                     <td className="px-6 py-4">
@@ -247,7 +299,7 @@ export default function JobsPage() {
                           <span
                             className={cn(
                               "text-xs font-bold capitalize",
-                              job.status === "needs_review" || job.status === "approved"
+                              job.status === "needs_review" || job.status === "approved" || job.status === "published"
                                 ? "text-emerald-500"
                                 : job.status === "failed" || job.status === "rejected"
                                   ? "text-red-500"
@@ -307,11 +359,70 @@ export default function JobsPage() {
                             <X className="w-4 h-4" />
                           </button>
                         )}
-                        <button className="p-2 bg-slate-800 text-slate-500 hover:text-white rounded-lg transition-all border border-slate-700">
-                          <Trash2 className="w-4 h-4" />
+                        <button 
+                          onClick={() => setExpandedJob(expandedJob === job.id ? null : job.id)}
+                          className="p-2 ml-2 bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all border border-slate-700" title="History">
+                          <History className="w-4 h-4" />
+                        </button>
+                        {(job.status === "approved" || job.status === "published") && (
+                          <button 
+                            onClick={() => {
+                              setTrackingJobId(job.id);
+                              setTrackingData({
+                                post_url: job.post_url || "",
+                                performance_notes: job.performance_notes || "",
+                                is_successful: job.is_successful ?? null,
+                              });
+                            }}
+                            className="p-2 ml-2 bg-purple-600/10 text-purple-400 hover:bg-purple-600 hover:text-white rounded-lg transition-all border border-purple-600/20" title="Track Performance">
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button className="p-2 ml-2 bg-slate-800 text-slate-500 hover:text-white rounded-lg transition-all border border-slate-700">
+                           <Trash2 className="w-4 h-4" />
                         </button>
                     </td>
                   </tr>
+                  
+                  {/* Expandable History Row */}
+                  <AnimatePresence>
+                    {expandedJob === job.id && (
+                      <motion.tr
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        <td colSpan={5} className="px-6 py-4 bg-slate-900/80 border-b border-slate-800/50">
+                          <div className="flex flex-col md:flex-row gap-6 text-sm">
+                            <div className="flex-1 space-y-2">
+                              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Job Details</p>
+                              <p className="text-slate-300"><span className="text-slate-500">Job ID:</span> {job.id}</p>
+                              <p className="text-slate-300"><span className="text-slate-500">Script ID:</span> {job.script_id}</p>
+                            </div>
+                            <div className="flex-1 space-y-2">
+                              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">History</p>
+                              <p className="text-slate-300">
+                                <span className="text-slate-500">Retries:</span> 
+                                <span className={job.retry_count > 0 ? "text-amber-500 ml-2" : "ml-2"}>{job.retry_count}</span>
+                              </p>
+                              <p className="text-slate-300">
+                                <span className="text-slate-500">Last Error:</span> 
+                                <span className={job.error_message ? "text-red-400 ml-2" : "text-emerald-500 ml-2"}>{job.error_message || "None"}</span>
+                              </p>
+                              {job.status === "published" && (
+                                <div className="mt-2 text-xs">
+                                  <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-4 mb-2">Publish Data</p>
+                                  <p className="text-slate-300"><span className="text-slate-500 pr-2">Link:</span> {job.post_url ? <a href={job.post_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Link</a> : "None"}</p>
+                                  <p className="text-slate-300"><span className="text-slate-500 pr-2">Feedback:</span> {job.is_successful !== null ? (job.is_successful ? "👍 Good" : "👎 Bad") : "Not rated"}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    )}
+                  </AnimatePresence>
+                </React.Fragment>
                 ))}
               </tbody>
             </table>
@@ -488,6 +599,80 @@ export default function JobsPage() {
                   <p>Video output not available</p>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Tracking Modal */}
+      <AnimatePresence>
+        {trackingJobId && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setTrackingJobId(null)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-md glass-card rounded-3xl p-8 relative z-10"
+            >
+              <h2 className="text-2xl font-bold text-white mb-6">Track Publishing</h2>
+              <form onSubmit={handleUpdateTracking} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Live Post URL</label>
+                  <input
+                    type="url"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-blue-500"
+                    placeholder="https://tiktok.com/@..."
+                    value={trackingData.post_url}
+                    onChange={(e) => setTrackingData({ ...trackingData, post_url: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Performance Loop</label>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setTrackingData({ ...trackingData, is_successful: true })}
+                      className={cn(
+                        "flex-1 p-3 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2",
+                        trackingData.is_successful === true ? "bg-emerald-600/20 border-emerald-500 text-emerald-400" : "bg-slate-900 border-slate-800 text-slate-500 hover:border-emerald-500/50"
+                      )}
+                    >
+                      👍 Good Performance
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTrackingData({ ...trackingData, is_successful: false })}
+                      className={cn(
+                        "flex-1 p-3 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2",
+                        trackingData.is_successful === false ? "bg-red-600/20 border-red-500 text-red-400" : "bg-slate-900 border-slate-800 text-slate-500 hover:border-red-500/50"
+                      )}
+                    >
+                      👎 Poor Perf
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Notes</label>
+                  <textarea
+                    rows={2}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-blue-500"
+                    placeholder="E.g. Hook worked well, but CTA was too long..."
+                    value={trackingData.performance_notes}
+                    onChange={(e) => setTrackingData({ ...trackingData, performance_notes: e.target.value })}
+                  />
+                </div>
+                <div className="pt-4 flex justify-end gap-3">
+                  <button type="button" onClick={() => setTrackingJobId(null)} className="px-4 py-2 text-slate-400 hover:text-white font-bold text-sm">Cancel</button>
+                  <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-xl transition-all">Save Tracking</button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

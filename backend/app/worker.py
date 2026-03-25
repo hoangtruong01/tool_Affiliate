@@ -30,6 +30,7 @@ celery_app.conf.include = [
     "app.tasks.ai_tasks",
     "app.tasks.render_tasks",
     "app.tasks.automation_tasks",
+    "app.tasks.maintenance_tasks",
 ]
 
 # Periodic tasks (Celery Beat)
@@ -37,6 +38,10 @@ celery_app.conf.beat_schedule = {
     "daily_content_generation": {
         "task": "app.tasks.automation_tasks.daily_content_generation",
         "schedule": crontab(hour=9, minute=0),  # Run daily at 9:00 AM UTC
+    },
+    "cleanup_stale_jobs": {
+        "task": "app.tasks.maintenance_tasks.cleanup_stale_jobs",
+        "schedule": crontab(minute=0),  # Run every hour
     },
 }
 

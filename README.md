@@ -75,12 +75,15 @@ queued → processing → needs_review → approved
 
 ### Operator Guide
 
-**Daily workflow:**
-1. Seed or create products → AI analysis → script generation → render job.
-2. Jobs auto-transition: `queued` → `processing` → `needs_review`.
-3. Go to `/approvals` → preview video → approve or reject.
-4. Rejected jobs can be retried from `/jobs`.
-5. Failed jobs show `error_message` for debugging.
+**Daily Workflow (Phase E Expected Flow):**
+1. **Automation**: At 9:00 AM UTC daily, the Celery Beat scheduler automatically picks an active product and triggers an AI script job.
+2. **Review Scripts**: Optionally review generated scripts in `/approvals`.
+3. **Queue Renders**: The automation automatically queues a render job for approved scripts.
+4. **Dashboard Check**: Open the `/jobs` page to view the **Today's Activity** summary (New, Processing, Needs Review, Approved, Failed).
+5. **Video Review**: Go to `/approvals` (Pending Review tab) to watch the newly rendered video inline.
+6. **Approve & Export**: If the video is good, click **Approve**. The job moves to the Approved queue, where you can download the final `HD Video` and copy the `Caption / Hashtags / Link` bundle to clipboard.
+7. **Publish Tracking**: Click the job in the `/jobs` dashboard to mark it as `published` and add performance notes.
+8. **Handling Failures**: Check `/jobs` for Failed items, read the explicit `error_message`, and click **Retry** to try again (which clears stale media automatically).
 
 **Runtime Configuration (Mock vs Real):**
 To develop locally without incurring API or CPU costs, configure your `.env` or `config.py`:

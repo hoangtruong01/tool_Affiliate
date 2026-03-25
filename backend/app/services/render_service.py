@@ -146,6 +146,14 @@ async def update_job_status(
         job.started_at = None
         job.completed_at = None
         job.error_message = None
+        
+        if job.output_path and os.path.exists(job.output_path):
+            try:
+                os.remove(job.output_path)
+                logger.info(f"Deleted old output file for job {job_id}: {job.output_path}")
+            except Exception as e:
+                logger.error(f"Failed to delete old output file {job.output_path}: {e}")
+                
         job.output_path = None
         job.retry_count += 1
         logger.info(f"Job {job_id} reset for retry. Count: {job.retry_count}")
