@@ -81,9 +81,23 @@ queued → processing → needs_review → approved
 3. **Queue Renders**: The automation automatically queues a render job for approved scripts.
 4. **Dashboard Check**: Open the `/jobs` page to view the **Today's Activity** summary (New, Processing, Needs Review, Approved, Failed).
 5. **Video Review**: Go to `/approvals` (Pending Review tab) to watch the newly rendered video inline.
-6. **Approve & Export**: If the video is good, click **Approve**. The job moves to the Approved queue, where you can download the final `HD Video` and copy the `Caption / Hashtags / Link` bundle to clipboard.
+6. **Approve & Package**: If the video is good, click **Approve**. Go to the **History** tab to access the final video download and copy the **Asset Bundle** (Caption/Hashtags/Link) to clipboard.
 7. **Publish Tracking**: Click the job in the `/jobs` dashboard to mark it as `published` and add performance notes.
 8. **Handling Failures**: Check `/jobs` for Failed items, read the explicit `error_message`, and click **Retry** to try again (which clears stale media automatically).
+
+## Production Scaling
+
+For high-volume rendering, you can scale the worker service independently:
+
+```bash
+docker compose up -d --scale worker=3
+```
+
+Ensure your `MEDIA_DIR` is on a shared volume if workers are running on different physical hosts.
+
+---
+
+*This tool was hardened during Phase D/E for production-ready MVP status.*
 
 **Runtime Configuration (Mock vs Real):**
 To develop locally without incurring API or CPU costs, configure your `.env` or `config.py`:

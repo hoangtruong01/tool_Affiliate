@@ -159,15 +159,24 @@ async def publish_job_endpoint(
 
     if job.status == "approved":
         job.status = "published"
-        job.posted_at = datetime.now()
-        job.platform = "manual" # Default until real API is implemented
-        
+        job.posted_at = data.posted_at or datetime.now()
+        job.platform = data.platform or "manual"
+
+    # Update all provided fields
     if data.post_url is not None:
         job.post_url = data.post_url
     if data.performance_notes is not None:
         job.performance_notes = data.performance_notes
     if data.is_successful is not None:
         job.is_successful = data.is_successful
+    if data.platform is not None:
+        job.platform = data.platform
+    if data.posted_at is not None:
+        job.posted_at = data.posted_at
+    if data.operator_notes is not None:
+        job.operator_notes = data.operator_notes
+    if data.publish_outcome is not None:
+        job.publish_outcome = data.publish_outcome
 
     await db.commit()
     await db.refresh(job)

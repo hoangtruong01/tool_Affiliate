@@ -8,6 +8,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Centralized, typed application settings."""
 
+    PROJECT_NAME: str = "AI Video Affiliate Tool"
+    PROJECT_VERSION: str = "1.1.0"  # Phase F
+    API_V1_STR: str = "/api/v1"
+
     # ── Database ──
     POSTGRES_USER: str = "affiliate_user"
     POSTGRES_PASSWORD: str = "changeme_strong_password"

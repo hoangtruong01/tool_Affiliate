@@ -1,5 +1,5 @@
 """
-Analytics endpoints — dashboard stats.
+Analytics endpoints — dashboard stats, learning insights, and reports.
 """
 from typing import Annotated
 
@@ -72,3 +72,23 @@ async def dashboard_stats(
             round(job_stats.get("approved", 0) / jobs_total * 100, 1) if jobs_total > 0 else 0
         ),
     }
+
+
+@router.get("/learning")
+async def learning_insights(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """Rule-based learning insights from published video performance data."""
+    from app.services.learning_service import get_learning_insights
+    return await get_learning_insights(db)
+
+
+@router.get("/reports")
+async def reports_data(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """Operator-facing report data: summaries, top performers, failures, stuck jobs."""
+    from app.services.learning_service import get_reports_data
+    return await get_reports_data(db)

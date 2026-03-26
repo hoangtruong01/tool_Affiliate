@@ -41,7 +41,11 @@ celery_app.conf.beat_schedule = {
     },
     "cleanup_stale_jobs": {
         "task": "app.tasks.maintenance_tasks.cleanup_stale_jobs",
-        "schedule": crontab(minute=0),  # Run every hour
+        "schedule": crontab(minute="*/30"),  # Run every 30 minutes
+    },
+    "cleanup_stale_media": {
+        "task": "app.tasks.maintenance_tasks.cleanup_stale_media",
+        "schedule": crontab(day_of_week=0, hour=3, minute=0),  # Run weekly at 3:00 AM UTC on Sunday
     },
 }
 

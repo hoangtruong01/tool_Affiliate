@@ -34,9 +34,10 @@ def render_video_task(self, job_id: str):
 
             await render_service.update_job_status(db, job.id, "processing")
             await db.commit()
+            logger.info(f"[Job {job_id}] Status transitioned to PROCESSING")
 
             try:
-                logger.info(f"Starting render for job {job_id}")
+                logger.info(f"[Job {job_id}] Starting render pipeline")
                 # Prepare assets
                 assets = []
                 # job_assets is a list of VideoJobAsset models
@@ -55,7 +56,7 @@ def render_video_task(self, job_id: str):
                     elif asset.asset_type == "audio":
                         audio_path = asset.file_path
 
-                logger.info(f"Found {len(image_paths)} images and audio={bool(audio_path)}")
+                logger.info(f"[Job {job_id}] Assets prepared: {len(image_paths)} images, audio_present={bool(audio_path)}")
 
                 # Prepare output path
                 output_filename = f"render_{job.id.hex}.mp4"
@@ -86,9 +87,9 @@ def render_video_task(self, job_id: str):
                     success, message = True, "Mock render success"
                 else:
                     # Execute FFmpeg
-                    logger.info(f"Executing FFmpeg command for job {job_id}")
+                    logger.info(f"[Job {job_id}] Executing FFmpeg: {cmd[:100]}...")
                     success, message = run_ffmpeg(cmd)
-                    logger.info(f"FFmpeg finished for job {job_id}: success={success}")
+                    logger.info(f"[Job {job_id}] FFmpeg exit: success={success}, msg={message}")
 
                 if success:
                     if not settings.MOCK_RENDER_PROVIDER and (not os.path.exists(output_path) or os.path.getsize(output_path) == 0):
@@ -110,7 +111,7 @@ def render_video_task(self, job_id: str):
                     )
                 
                 await db.commit()
-                logger.info(f"Committed final status for job {job_id}")
+                logger.info(f"[Job {job_id}] Render cycle complete. Terminal status achieved.")
 
             except Exception as e:
                 logger.exception(f"Render failed for job {job_id}")

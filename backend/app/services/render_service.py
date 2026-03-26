@@ -23,11 +23,11 @@ ALLOWED_TRANSITIONS = {
     "queued": ["processing", "cancelled", "failed"],
     "processing": ["needs_review", "failed", "cancelled"],
     "needs_review": ["approved", "rejected", "failed"],
-    "approved": ["published"], # Published might be a final state
+    "approved": ["published"],
     "rejected": ["queued"],
     "failed": ["queued"],
     "cancelled": ["queued"],
-    "published": [],
+    "published": ["published"],  # Allow re-editing publish metadata
 }
 
 

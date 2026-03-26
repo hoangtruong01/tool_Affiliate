@@ -27,6 +27,11 @@ class VideoJobPublishUpdate(BaseModel):
     post_url: Optional[str] = None
     performance_notes: Optional[str] = None
     is_successful: Optional[bool] = None
+    # Phase F — extended publish metadata
+    platform: Optional[str] = None
+    posted_at: Optional[datetime] = None
+    operator_notes: Optional[str] = None
+    publish_outcome: Optional[str] = None  # success | underperform | viral | removed
 
 
 class VideoJobResponse(BaseModel):
@@ -45,6 +50,8 @@ class VideoJobResponse(BaseModel):
     post_url: Optional[str] = None
     performance_notes: Optional[str] = None
     is_successful: Optional[bool] = None
+    operator_notes: Optional[str] = None
+    publish_outcome: Optional[str] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     created_at: datetime

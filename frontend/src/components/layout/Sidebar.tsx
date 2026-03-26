@@ -11,6 +11,7 @@ import {
   PlayCircle,
   CheckCircle2,
   BarChart3,
+  LineChart,
   Settings,
   LogOut,
   Video,
@@ -26,6 +27,7 @@ const menuItems = [
   { icon: PlayCircle, label: "Video Jobs", href: "/jobs" },
   { icon: BarChart3, label: "Product Intelligence", href: "/compare" },
   { icon: CheckCircle2, label: "Approvals", href: "/approvals" },
+  { icon: LineChart, label: "Learning & Reports", href: "/reports" },
   { icon: Settings, label: "Settings", href: "/admin" },
 ];
 

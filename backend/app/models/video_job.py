@@ -45,6 +45,10 @@ class VideoJob(Base):
     performance_notes: Mapped[str | None] = mapped_column(Text)
     is_successful: Mapped[bool | None] = mapped_column(Boolean)
 
+    # Phase F — extended publish metadata
+    operator_notes: Mapped[str | None] = mapped_column(Text)
+    publish_outcome: Mapped[str | None] = mapped_column(String(50))  # success | underperform | viral | removed
+
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
@@ -56,6 +60,10 @@ class VideoJob(Base):
     creator = relationship("User", back_populates="video_jobs")
     job_assets = relationship(
         "VideoJobAsset", back_populates="job", cascade="all, delete-orphan"
+    )
+    performance_metrics = relationship(
+        "PerformanceMetric", back_populates="job", cascade="all, delete-orphan",
+        order_by="PerformanceMetric.recorded_at.desc()"
     )
 
     def __repr__(self) -> str:
