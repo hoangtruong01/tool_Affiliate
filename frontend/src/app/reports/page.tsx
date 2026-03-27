@@ -11,7 +11,8 @@ import {
   Eye,
   ArrowRight,
   RefreshCcw,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from "lucide-react";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ interface LearningReport {
   top_angles: any[];
   candidates_to_retry: any[];
   candidates_to_drop: any[];
+  stuck_jobs?: any[];
 }
 
 export default function ReportsPage() {
@@ -180,6 +182,27 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
+
+      {/* Stuck Jobs Monitoring */}
+      {report?.stuck_jobs && report.stuck_jobs.length > 0 && (
+        <div className="glass-card rounded-2xl p-6 border border-amber-600/30 bg-amber-600/5">
+          <div className="flex items-center gap-3 mb-6 font-bold text-amber-500 uppercase tracking-widest text-xs">
+            <Clock className="w-5 h-5" />
+            Active Bottlenecks (Stuck {">"}30m)
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {report.stuck_jobs.map((s: any, i: number) => (
+              <div key={i} className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+                <div>
+                    <p className="text-xs font-bold text-white mb-1">Job {s.job_id.slice(0,8)}</p>
+                    <p className="text-[10px] text-slate-500">Started: {new Date(s.started_at).toLocaleString()}</p>
+                </div>
+                <div className="bg-amber-600/20 text-amber-500 px-2 py-1 rounded text-[10px] font-black">STUCK</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

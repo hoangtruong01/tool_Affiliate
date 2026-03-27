@@ -2,7 +2,7 @@
 Video Job endpoints — create, list, retry, approve/reject.
 """
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated, Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -159,7 +159,7 @@ async def publish_job_endpoint(
 
     if job.status == "approved":
         job.status = "published"
-        job.posted_at = data.posted_at or datetime.now()
+        job.posted_at = data.posted_at or datetime.now(timezone.utc)
         job.platform = data.platform or "manual"
 
     # Update all provided fields
